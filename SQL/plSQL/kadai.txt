@@ -1,0 +1,30 @@
+/*
+@C:\Users\Administrator\Desktop\text\SQL\plSQL\kadai.sql
+*/
+--1.1～5000までの数字の足算の結果を
+--RESULTテーブルのNRESULTにinsertするPLSQLを書きなさい。
+
+SET SERVEROUTPUT ON
+DECLARE
+  num EMP.SAL%TYPE := 0;
+  sum EMP.SAL%TYPE := 0;
+
+BEGIN
+  LOOP
+    exit when num >= 10;
+    num := num + 1 ;
+    sum := sum + num ;
+  END LOOP ;
+  DBMS_OUTPUT.PUT_LINE(num);
+  DBMS_OUTPUT.PUT_LINE(sum);
+END;
+/
+
+
+行9でエラーが発生しました。:
+ORA-06550: 行9、列16:
+PLS-00103: 記号"+"が見つかりました。 次のうちの1つが入るとき:
+(
+ORA-06550: 行12、列27:
+PLS-00103: 記号")"が見つかりました。 次のうちの1つが入るとき:
+(

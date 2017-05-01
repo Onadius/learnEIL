@@ -1,0 +1,99 @@
+
+--実行方法： @C:\Users\Administrator\Desktop\text\SQL\plSQL\memo1.sql
+
+
+--plSQLの実行
+
+-- ログ出力開始
+spool c:\テキスト.txt
+
+-- ログ出力終了
+spool off
+
+
+-- コンソールを表示する
+set serveroutput on
+-- 文字列をコンソールに表示する
+dbms_output.put_line(文字列);
+
+
+無名PL/SQLブロックは必ず、「BEGIN」または「DECLARE」で始まり、
+最後は「END;」で終ります。
+
+DECLARE
+ブロック内で使用する変数を宣言するセクションです。
+宣言する変数がない場合、DECLAREは省略できます。
+
+BEGIN
+ＳＱＬ文や制御ロジックなどのメイン処理を記述する、実行可能なセクションです。
+このセクションの記述は必須です。
+
+EXCEPTION
+プログラム内で発生したエラーに対処する為の、エラー処理を記述します。
+エラー処理が無い場合は、EXCEPTIONは省略できます。
+
+END
+ブロックの最後に記述します。
+
+
+
+
+
+DECLARE --変数の定義
+  str varchar2(30);
+
+BEGIN --select文やinsertなどここに書く
+  str := 'Hello, world';
+
+  dbms_output.put_line(str);
+
+END;
+
+
+
+• PL/SQLでは、SELECT文の列(値)はSQLの内部で利用するか、INTO句を利用
+して一時的に変数に格納します(1行だけ返す場合)
+
+DECLARE
+  cnt number(4);
+
+BEGIN
+  select count(*) into cnt
+  from emp ;
+
+  dbms_output.put_line(cnt) ;
+END;
+/
+
+・「SET SERVEROUTPUT ON」
+このセッションでSQL*Plusの画面出力を可能とするものです。
+これはPL/SQLではなく、SQL*Plusのコマンドであり、
+データベースサーバーに送信されるものではありません。
+したがって、無名ブロックの外で記述することに注意してください。
+
+・変数宣言の構文
+変数名 データ型;
+
+sumなどの予約語は使えない！
+
+<宣言部で>
+   変数名 表名.列名%TYPE;
+    V_ENAME   EMP.ENAME%TYPE;
+この方法は、「指定した表(またはビュー)の
+指定した列と同じデータ型である」とういう変数宣言です。
+
+もし実行部でTAX_RATEへの値の代入を禁じたい場合は
+CONSTANTキーワードを使って以下のように宣言します。
+
+
+
+<宣言部で>
+   TAX_RATE  CONSTANT  NUMBER := 5;
+定数も宣言できます。変数の宣言に良く似ています。
+<定数名>と<データ型>の間に、CONSTANT句を記述します｡
+
+
+<実行部で>
+    変数名　:= 値;
+PL/SQLでは、「=」は比較するという意味であり、代入ではありません。代入は「:=」です。
+「比較」と「代入」はプログラム言語によりそれぞれ微妙に違うので要注意です。

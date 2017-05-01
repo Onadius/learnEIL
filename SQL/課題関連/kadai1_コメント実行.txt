@@ -1,0 +1,41 @@
+--コメント箇所実行結果
+
+/*
+9. ⇒★OK（黒）
+　　「基本給、歩合給の平均が$3000より多い職種」はわかりますか？
+*/
+SELECT JOB, AVG(SAL) + AVG(NVL(COMM, 0)) AS "平均総所得" FROM EMP
+GROUP BY JOB HAVING (AVG(SAL) + AVG(NVL(COMM, 0))) > 3000 ;
+
+JOB                平均総所得
+------------------ ----------
+PRESIDENT                5000
+
+/*
+11. ⇒★OK（黒）
+「JOBがSALESMANでSALが$1500より少ない
+ もしくはJOBがSALESMAN以外で$3000よりも多くSALを貰っている社員を表示」はわかりますか？
+*/
+SELECT ENAME FROM EMP
+WHERE (JOB = 'SALESMAN' AND SAL < 1500 ) OR (JOB != 'SALESMAN' AND SAL > 3000) ;
+
+ENAME
+--------------------
+WARD
+MARTIN
+KING
+
+/*
+17. ⇒★OK（黒）
+「上記結果の平均給与の小数点を四捨五入して表示してみてください」
+（※ネット検索になると思います。
+*/
+SELECT JOB, ROUND(AVG(SAL), 0) AS "給与平均" FROM EMP
+GROUP BY JOB HAVING COUNT(ENAME) >= 2 ;
+
+JOB                  給与平均
+------------------ ----------
+ANALYST                  3000
+CLERK                    1038
+MANAGER                  2758
+SALESMAN                 1400

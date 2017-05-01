@@ -1,0 +1,137 @@
+//SELECTコマンド関連
+データベースから情報を検索する際に利用する。
+
+・*句の全データ表示
+SQL> SELECT *(列名でも可能)
+  2  FROM DEPT(スキーマ名) ; //スキーマ->オブジェクトの集合
+
+    DEPTNO DNAME                LOC
+---------- -------------------- --------------------
+        10 ACCOUNTING           NEW YORK
+        20 RESEARCH             DALLAS
+        30 SALES                CHICAGO
+        40 OPERATIONS           BOSTON
+
+
+
+・列を別名で表示
+
+SQL> SELECT 列名 AS "列の別名"
+FROM スキーマ名(表名) ;
+↓
+SQL> SELECT ENAME, SAL AS "MONTHLY SALARY",
+  2  SAL*12 AS "Annual Income"
+  3  FROM EMP ;
+
+ENAME                MONTHLY SALARY Annual Income
+-------------------- -------------- -------------
+SMITH                           800          9600
+ALLEN                          1600         19200
+WARD                           1250         15000
+JONES                          2975         35700
+
+・DISTINCT句の使用(重複値を一度のみリターン)
+
+SQL> SELECT DISTINCT JOB
+  2  FROM EMP ;
+
+JOB
+------------------
+ANALYST
+CLERK
+MANAGER
+PRESIDENT
+SALESMAN
+
+・検索行の絞り込み
+
+SQL> SELECT EMPNO, ENAME, JOB, SAL, COMM, DEPTNO
+  2  FROM EMP
+  3  WHERE COMM > SAL ;
+
+     EMPNO ENAME                JOB                       SAL       COMM
+---------- -------------------- ------------------ ---------- ----------
+    DEPTNO
+----------
+      7654 MARTIN               SALESMAN                 1250       1400
+        30
+
+・演算子を使用した条件検索
+
+SQL> SELECT ENAME, JOB, SAL
+  2  FROM EMP
+  3  WHERE JOB = 'MANAGER'
+  4  AND SAL > 2800 ;
+
+ENAME                JOB                       SAL
+-------------------- ------------------ ----------
+JONES                MANAGER                  2975
+BLAKE                MANAGER                  2850
+
+SQL> SELECT ENAME, SAL
+  2  FROM EMP
+  3  WHERE SAL BETWEEN 1200 AND 1400 ;
+
+ENAME                       SAL
+-------------------- ----------
+WARD                       1250
+MARTIN                     1250
+MILLER                     1300
+
+・検索結果順序制御
+--DESC:降順, ORDER BY句
+
+SQL> SELECT ENAME, JOB, SAL
+  2  FROM EMP
+  3  WHERE DEPTNO = 30
+  4  ORDER BY SAL DESC --DESC:降順
+  5  ;
+
+ENAME                JOB                       SAL
+-------------------- ------------------ ----------
+BLAKE                MANAGER                  2850
+ALLEN                SALESMAN                 1600
+TURNER               SALESMAN                 1500
+WARD                 SALESMAN                 1250
+MARTIN               SALESMAN                 1250
+JAMES                CLERK                     950
+
+6行が選択されました。
+
+・位置に基づく順序付け
+
+SQL> SELECT ENAME, JOB ,SAL
+  2  FROM EMP
+  3  ORDER BY 2, 3 DESC
+  4  ;
+
+ENAME                JOB                       SAL
+-------------------- ------------------ ----------
+FORD                 ANALYST                  3000
+SCOTT                ANALYST                  3000
+MILLER               CLERK                    1300
+ADAMS                CLERK                    1100
+JAMES                CLERK                     950
+SMITH                CLERK                     800
+JONES                MANAGER                  2975
+BLAKE                MANAGER                  2850
+CLARK                MANAGER                  2450
+...
+
+・行のグループ分け
+
+SQL> SELECT DEPTNO, MIN(SAL), MAX(SAL)
+  2  FROM EMP
+  3  GROUP BY DEPTNO
+  4  ;
+
+    DEPTNO   MIN(SAL)   MAX(SAL)
+---------- ---------- ----------
+        10       1300       5000
+        20        800       3000
+        30        950       2850
+
+・
+SELECT DEPTNO, MIN(SAL), MAX(SAL)
+FROM EMP
+GROUP BY DEPTNO

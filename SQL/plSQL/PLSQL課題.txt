@@ -1,0 +1,25 @@
+1.1～5000までの数字の足算の結果を
+　RESULTテーブルのNRESULTにinsertするPLSQLを書きなさい。
+
+2.一番小さいEMPNOの人のSALが1000以上だったら
+　RESULTテーブルのCRESULTに'TRUE',
+　1000未満だったら'FALSE'をinsertするPLSQLを書きなさい。
+--> 一行目を消す。
+
+3.一番多いJOBの名前をRESULTテーブルのJNRESULTにinsertするPLSQLを書きなさい。
+
+4.EMP表に存在する人物のSALを全て足して、
+　RESULTテーブルのNRESULT2にinsertするPLSQLを書きなさい。
+　このとき、Qより後のアルファベットで始まるJOBの人物のSALは
+　DEPTNO倍して足しなさい。
+
+5.TMPのTEL1とEMP3のTELの上4桁を比較して、
+　一致した行はEMP3のTELの上4桁をTMPのTEL2の値に、
+　一致しなかった行は上4桁を9999に変更しなさい。
+
+6.tmp2のデータで、EMP3にEMPNOが一致する行があった場合は、
+　EMP3のTELをTMP2のTELに変更し、一致する行が無かった場合は
+　EMP3にその行を追加しなさい。
+
+7.EMP3を名前順に並べたとき、8番目以降の行の項目COUNTRYを、
+　TMP2中の同じEMPNOのCOUNTRYに更新しなさい。
