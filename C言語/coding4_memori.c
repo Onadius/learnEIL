@@ -20,6 +20,7 @@ int main (){
       exit(1) ;
     }
 
+    
     strcpy(sp[n], buf) ; /*sp[n]に入力文字列代入*/
     n++ ;
 

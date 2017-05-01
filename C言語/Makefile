@@ -43,7 +43,7 @@ MAKEFILE=Makefile
 #=============================================================================#
 PROJ    =miku
 #PSRC    =af845k.pc ldate.pc wtb2tab.pc vinsj.pc cinsj.pc hkyinsj.pc
-CSRC    =coding4_memori.c
+CSRC    =aaa.c
 
 #LINC    =../../include
 #=============================================================================#
