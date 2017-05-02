@@ -14,6 +14,8 @@ struct services {
   char service_name[20] ;
   char port_no[10] ;
   char protocol[20] ;
+
+  struct services *next ;
 } ;
 
 
@@ -22,6 +24,13 @@ int main(void){
 
   struct services sagiri[275] ;
   struct services *miku ;
+
+  /* 自己参照構造体
+  struct services dmy ; //dmyは初期化用
+  struct services *start = &dmy ; //startは最初のpersonal構造体
+  struct services *wp ; //wpは作業用
+  struct services *wkdata ; //最新のデータ用
+  */
 
   char fname[] = "services.txt" ;
   FILE *fp ;
@@ -32,6 +41,8 @@ int main(void){
 
   /*ポインタmikuに構造体配列の先頭アドレスsagiriを設定*/
   miku = sagiri ;
+
+  miku->next = NULL ; //初期化
 
   /*ファイルオープン*/
   if((fp = fopen(fname, "r")) == NULL){
@@ -64,6 +75,8 @@ int main(void){
     i++ ;
   }
   fclose(fp) ;
+
+  /*
 
   /* 出力 */
   for( j = 0 ; j <= 274 ; j++ ) {
