@@ -9,40 +9,40 @@ servicesを読み込み、以下の各項目を持つ構造体に
 #include <string.h>
 
 /* 構造体宣言 */
-struct eromannga {
-  char service_name[20] ;
+struct services {
+  char service_name[200] ;
   int port_no ;
   char protocol[10] ;
 } ;
 
-#define N 256
 
 
+/* main関数 */
 int main(void){
 
-  char fname[] = "services" ;
-  FILE *fp = NULL ;
-  char str[N] ;
-  char readline[N] = {'\0'} ;
-  char p, q ;
+  struct services sagiri[276] ;
+  struct services *miku ;
 
-  /*メモリ確保*/
-  fp = (FILE*)malloc(1000) ;
+  char fname[] = "services.txt" ;
+  FILE *fp ;
+  int i = 0 ;
+
+  /*ポインタmikuに構造体配列の先頭アドレスsagariを設定*/
+  miku = sagiri ;
+
 
   /*ファイルオープン*/
-  if(( fp = fopen(fname, "r")) == NULL ) {
-    printf("そんな名前の人は知らない\n") ;
+  if((fp = fopen(fname, "r")) == NULL){
+    printf("can't open file\n") ;
   }
 
-
-  while( fgets(str, sizeof(str), fp) != EOF ) {
-    printf("%s", str) ;
-
+  /*ファイル読み込みと格納*/
+  /**/
+  while( fscanf(fp, "%s", (miku + i)->service_name) != EOF){
+    printf("%s\n", (miku + i)->service_name);
+    i++ ;
   }
-
-
   fclose(fp) ;
-  free(fp) ;
 
   return 0 ;
 }

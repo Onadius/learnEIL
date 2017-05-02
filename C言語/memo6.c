@@ -90,3 +90,24 @@ fprintf()	int fprintf(FILE *stream, const char *format,...);
 第2引数以降は出力元となる変数を変換指定子※2の数だけ指定します。
 
 */
+
+#include <stdio.h>
+
+int main(void) {
+  FILE *fp ;
+  char fname[] = "file.txt" ;
+  char a[100] ;
+  int ret, n1, n2;
+  int i = 0 ;
+
+  if((fp = fopen(fname, "r")) == NULL){
+    printf("can't open file\n") ;
+  }
+
+  while(fscanf(fp, "%s", a) != EOF){
+    printf("%s\n", a);
+    i++ ;
+  }
+  fclose(fp) ;
+  return 0 ;
+}
