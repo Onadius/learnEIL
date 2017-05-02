@@ -68,7 +68,7 @@ snmp              161/udp                           #SNMP
 snmptrap          162/udp    snmp-trap              #SNMP trap
 print-srv         170/tcp                           #Network PostScript
 bgp               179/tcp                           #Border Gateway Protocol
-irc               194/tcp                           #Internet Relay Chat Protocol        
+irc               194/tcp                           #Internet Relay Chat Protocol
 ipx               213/udp                           #IPX over IP
 rtsps             322/tcp
 rtsps             322/udp
@@ -95,8 +95,8 @@ talk              517/udp
 ntalk             518/udp
 efs               520/tcp                           #Extended File Name Server
 router            520/udp    route routed
-ulp               522/tcp    
-ulp               522/udp    
+ulp               522/tcp
+ulp               522/udp
 timed             525/udp    timeserver
 tempo             526/tcp    newdate
 irc-serv          529/tcp
@@ -160,10 +160,10 @@ activesync       1034/tcp                           #ActiveSync Notifications
 phone            1167/udp                           #Conference calling
 opsmgr           1270/tcp                           #Microsoft Operations Manager
 opsmgr           1270/udp                           #Microsoft Operations Manager
-ms-sql-s         1433/tcp                           #Microsoft-SQL-Server 
-ms-sql-s         1433/udp                           #Microsoft-SQL-Server 
+ms-sql-s         1433/tcp                           #Microsoft-SQL-Server
+ms-sql-s         1433/udp                           #Microsoft-SQL-Server
 ms-sql-m         1434/tcp                           #Microsoft-SQL-Monitor
-ms-sql-m         1434/udp                           #Microsoft-SQL-Monitor                
+ms-sql-m         1434/udp                           #Microsoft-SQL-Monitor
 ms-sna-server    1477/tcp
 ms-sna-server    1477/udp
 ms-sna-base      1478/tcp
@@ -213,8 +213,8 @@ ms-theater       2460/tcp
 ms-theater       2460/udp
 wlbs             2504/tcp                           #Microsoft Windows Load Balancing Server
 wlbs             2504/udp                           #Microsoft Windows Load Balancing Server
-ms-v-worlds      2525/tcp                           #Microsoft V-Worlds 
-ms-v-worlds      2525/udp                           #Microsoft V-Worlds 
+ms-v-worlds      2525/tcp                           #Microsoft V-Worlds
+ms-v-worlds      2525/udp                           #Microsoft V-Worlds
 sms-rcinfo       2701/tcp                           #SMS RCINFO
 sms-rcinfo       2701/udp                           #SMS RCINFO
 sms-xfer         2702/tcp                           #SMS XFER
@@ -263,16 +263,16 @@ net-device       4350/tcp                           #Net Device
 net-device       4350/udp                           #Net Device
 ipsec-msft       4500/tcp                           #Microsoft IPsec NAT-T
 ipsec-msft       4500/udp                           #Microsoft IPsec NAT-T
-llmnr            5355/tcp                           #LLMNR 
-llmnr            5355/udp                           #LLMNR 
-wsd              5357/tcp                           #Web Services on devices 
+llmnr            5355/tcp                           #LLMNR
+llmnr            5355/udp                           #LLMNR
+wsd              5357/tcp                           #Web Services on devices
 wsd              5358/tcp                           #Web Services on devices
 rrac             5678/tcp                           #Remote Replication Agent Connection
 rrac             5678/udp                           #Remote Replication Agent Connection
 dccm             5679/tcp                           #Direct Cable Connect Manager
 dccm             5679/udp                           #Direct Cable Connect Manager
 ms-licensing     5720/tcp                           #Microsoft Licensing
-ms-licensing     5720/udp                           #Microsoft Licensing 
+ms-licensing     5720/udp                           #Microsoft Licensing
 directplay8      6073/tcp                           #DirectPlay8
 directplay8      6073/udp                           #DirectPlay8
 man              9535/tcp                           #Remote Man Server
@@ -282,4 +282,3 @@ imip-channels   11320/tcp                           #IMIP Channels Port
 imip-channels   11320/udp                           #IMIP Channels Port
 directplaysrvr  47624/tcp                           #Direct Play Server
 directplaysrvr  47624/udp                           #Direct Play Server
-
