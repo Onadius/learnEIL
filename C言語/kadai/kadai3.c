@@ -1,5 +1,9 @@
 #include <stdio.h>
 
+#define NUM 9
+#define LOOP 8
+
+
 int calculate(int a, int b){
   int seki ;
 
@@ -10,23 +14,22 @@ int calculate(int a, int b){
 
 int main(void){
 
-  int kuku[9][9] = {}; /*[行 y][列 x]*/
+  int kuku[NUM][NUM] = {}; /*[行 y][列 x]*/
   int x, y ;
-  int i, j, result ;
+  int j ;
 
   printf("   |");
-  for ( j = 1 ; j <= 9 ; j++) {
+  for ( j = 1 ; j <= NUM ; j++) {
     printf("%3d", j) ;
   }
   printf("\n");
   printf("---+---------------------------\n") ;
 
-  for ( x = 0; x <= 8; x++) {
+  for ( x = 0 ; x <= LOOP ; x++) {
     printf("%3d|", x + 1) ;
 
-    for( y = 0; y <= 8; y++ ) {
-      result = calculate(x + 1, y + 1) ;
-      kuku[x][y] = result ;
+    for( y = 0 ; y <= LOOP ; y++ ) {
+      kuku[x][y] = calculate(x + 1, y + 1) ;
       printf("%3d", kuku[x][y]);
     }
     printf("\n") ;

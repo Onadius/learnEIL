@@ -60,7 +60,7 @@ int main(void){
     /* strok()より、i行目の1文字目から空白までを抽出 */
     cpy = str ;
     s1 = strtok(cpy, " /") ;
-    strcpy((miku + i)->service_name, s1) ; //機能してない？
+    strcpy((miku + i)->service_name, s1) ; 
 
     /* (miku + i)->port_noには、i行目の数字から/までを抽出 */
     cpy = strtok(NULL, " /") ;
