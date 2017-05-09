@@ -18,6 +18,10 @@ struct services {
 } ;
 
 
+/* 関数プロトタイプ宣言 */
+void extructStr(char *str, int i, struct services *miku) ;
+
+
 /* main関数 */
 int main(void){
 
@@ -47,21 +51,9 @@ int main(void){
       continue ;
     }
 
-    /* strok()より、i行目の1文字目から空白までを抽出 */
-    //s1 = extractStr()
+    /* 文字列抽出関数呼び出し */
     cpy = str ;
-    s1 = strtok(cpy, " /") ;
-    strcpy((miku + i)->service_name, s1) ;
-
-    /* (miku + i)->port_numberには、i行目の数字から/までを抽出 */
-    cpy = strtok(NULL, " /") ;
-    s2 = cpy ;
-    strcpy((miku + i)->port_number, s2);
-
-    /* (miku + i)->protocolには、i行目の/から空白までを抽出 */
-    cpy = strtok(NULL, " /") ;
-    s3 = cpy ;
-    strcpy((miku + i)->protocol, s3);
+    extructStr(cpy, i, miku) ;
 
     i++ ;
   }
@@ -75,6 +67,28 @@ int main(void){
 
   return 0 ;
 }
+
+
+/* 文字列抽出及び構造体配列への格納関数 */
+void extructStr(char *str, int i, struct services *miku) {
+
+  char *s1, *s2, *s3 ;
+
+  s1 = strtok(str, " /") ;
+  strcpy((miku + i)->service_name, s1) ;
+
+  /* (miku + i)->port_numberには、i行目の数字から/までを抽出 */
+  str = strtok(NULL, " /") ;
+  s2 = str ;
+  strcpy((miku + i)->port_number, s2);
+
+  /* (miku + i)->protocolには、i行目の/から空白までを抽出 */
+  str = strtok(NULL, " /") ;
+  s3 = str ;
+  strcpy((miku + i)->protocol, s3);
+}
+
+
 
 
 /*
