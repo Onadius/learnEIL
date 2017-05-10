@@ -33,7 +33,7 @@ int main(void){
   char str[MOZINUM] ;
   int  i = 0 ;
   int  j ;
-  char *s1, *s2, *s3, *cpy ;
+  char *cpy ;
 
   /*ポインタmikuに構造体配列の先頭アドレスsagiriを設定(初期化)*/
   miku = sagiri ;

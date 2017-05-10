@@ -21,8 +21,6 @@ struct services {
 
 /* 関数プロトタイプ宣言 */
 void extructStr(char *str, int i, struct services *miku) ;
-void setNext(struct services *miku) ;
-void outPut(struct services *miku) ;
 
 
 /* main関数 */
@@ -39,6 +37,17 @@ int main(void){
 
   /*ポインタmikuに構造体配列の先頭アドレスsagiriを設定(初期化)*/
   miku = sagiri ;
+
+  /* -- 自己参照構造体定義 -- */
+  struct services dmy ;
+  struct services *start = &dmy ; //最初の構造体
+  struct services *wkdata ; // 最新データ格納用
+  struct services *wp ; // 現作業用
+
+
+  start->next = NULL;
+  wp = start; //初期化している (1)
+
 
   /*ファイルオープン*/
   if((fp = fopen(fname, "r")) == NULL){
@@ -57,19 +66,44 @@ int main(void){
     cpy = str ;
     extructStr(cpy, i, miku) ;
 
+
+    /* 以下、自己参照構造体への格納処理 */
+
+    wkdata = (struct services *)malloc(sizeof(struct services)); /* 領域確保 */
+    if (wkdata == NULL){
+      printf("sonnna namae no hito siranai !\n") ; /* 領域確保不可 */
+      break ;
+    }
+
+    /* wkdata構造体に各値代入 */
+    strcpy(wkdata->service_name, (miku + i)->service_name) ;
+    strcpy(wkdata->port_number, (miku + i)->port_number) ;
+    strcpy(wkdata->protocol, (miku + i)->protocol) ;
+
+    if( wp->next == NULL ) {
+
+      /* wkdata->next をNULLにする。NULLは最後のデータの印 */
+      wkdata->next = NULL ;
+
+      /* wpはwkdataよりひとつ前のpersonal構造体変数。
+      ひとつ前のnextにwkdataを設定し、チェーンを作る */
+      wp->next = wkdata ;
+
+      /* wpを最新のpersonal構造体を指し示すようにする (1) */
+      wp = wkdata ;
+    }
     i++ ;
   }
   fclose(fp) ;
 
-  /* 自己参照構造体定義関数呼び出し */
-  setNext(miku) ;
-
-  /* 出力関数呼び出し */
-  outPut(miku) ;
+  /* 出力 */
+  for( wp = start->next ; wp != NULL ; wp = wp->next ){
+    printf("[serviceName] : %s  [portNumber] : %s  [Protocol] : %s\n",
+    wp->service_name, wp->port_number, wp->protocol);
+  }
 
   return 0 ;
 }
-
 
 
 /* 文字列抽出及び構造体配列への格納関数 */
@@ -92,35 +126,18 @@ void extructStr(char *str, int i, struct services *miku) {
 }
 
 
-/* 自己参照構造体定義関数  */
-void setNext(struct services *miku) {
-
-  struct services dmy ;
-  struct services *start = &dmy ;
-  int i ;
-
-  start->next = miku ; /* 初期化 */
-  miku->next = (miku + 1) ; /*初期化*/
-
-  for( i = 1 ; i <= FILEROW ; i ++) {
-
-    if( i == FILEROW ) {
-      (miku + i)->next = NULL ;
-    }
-
-    (miku + i)->next = (miku + (i + 1)) ;
-  }
-}
 
 
-/* 出力関数 */
-void outPut(struct services *miku) {
-  int j ;
-  /* 出力 */
-  for( j = 0 ; j < FILEROW ; j++ ) {
-    printf("<service name>:%s  <port number>:%s  <protocol>:%s\n",
-      (miku + j)->service_name,
-      (miku + j)->port_number,
-      (miku + j)->protocol) ;
-  }
-}
+
+
+/* -- 結果
+
+[serviceName] : echo  [portNumber] : 7  [Protocol] : tcp
+[serviceName] : echo  [portNumber] : 7  [Protocol] : udp
+[serviceName] : discard  [portNumber] : 9  [Protocol] : tcp
+[serviceName] : discard  [portNumber] : 9  [Protocol] : udp
+...
+[serviceName] : directplaysrvr  [portNumber] : 47624  [Protocol] : tcp
+[serviceName] : directplaysrvr  [portNumber] : 47624  [Protocol] : udp
+
+*/
