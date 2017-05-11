@@ -17,6 +17,7 @@ struct services {
   char port_number[10] ;
   char protocol[20] ;
   struct services *next ;
+  struct services *before ;
 } ;
 
 
@@ -33,7 +34,6 @@ int main(void){
   char fname[] = "services.txt" ;
   FILE *fp ;
   char str[MOZINUM] ;
-  char manga[3][20] ;
   int  i = 0 ;
 
   /*ポインタmikuに構造体配列の先頭アドレスsagiriを設定(初期化)*/
@@ -43,9 +43,10 @@ int main(void){
   struct services dmy ;
   struct services *start = &dmy ; //最初の構造体
   struct services *newdata ; // 最新データ格納用
-  struct services *wp ; // 現作業用
+  struct services *wp ; // 現在位置用
 
-  start->next = NULL;
+  start->next = NULL ;
+  start->before = NULL ;
   wp = start; //初期化している (1)
 
 
@@ -84,6 +85,9 @@ int main(void){
       /* newdata->next をNULLにする。NULLは最後のデータの印 */
       newdata->next = NULL ;
 
+      /* 最新データのbeforeを、ひとつ前のwpにする */
+      newdata->before = wp ;
+
       /* wpはnewdataよりひとつ前のpersonal構造体変数。
       ひとつ前のnextにnewdataを設定し、チェーンを作る */
       wp->next = newdata ;
@@ -95,13 +99,12 @@ int main(void){
   }
   fclose(fp) ;
 
-  /* 出力 */
-  for( wp = start->next ; wp != NULL ; wp = wp->next ){
+  /* 出力 before順に */
+  for( wp = wp->before ; wp != NULL ; wp = wp->before ){
     printf("[serviceName] : %s  [portNumber] : %s  [Protocol] : %s\n",
     wp->service_name, wp->port_number, wp->protocol);
   }
 
-  free(newdata) ;
   return 0 ;
 }
 
@@ -119,12 +122,10 @@ void extructStr(char *str, int i, struct services *miku) {
   s2 = str ;
   strcpy((miku + i)->port_number, s2);
 
-
   /* (miku + i)->protocolには、i行目の/から空白までを抽出 */
   str = strtok(NULL, " /") ;
   s3 = str ;
   strcpy((miku + i)->protocol, s3);
-
 }
 
 
