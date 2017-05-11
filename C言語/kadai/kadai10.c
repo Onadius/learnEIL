@@ -75,6 +75,7 @@ int main(void){
       break ;
     }
 
+
     /* newdata構造体に各値代入 */
     strcpy(newdata->service_name, (miku + i)->service_name) ;
     strcpy(newdata->port_number, (miku + i)->port_number) ;
