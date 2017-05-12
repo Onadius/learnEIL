@@ -29,7 +29,6 @@ int main(void){
   char fname[] = "services.txt" ;
   FILE *fp ;
   char str[MOZINUM] ;
-  int  i = 0 ;
 
   /* -- 自己参照構造体定義 -- */
   struct services dmy ;
@@ -77,7 +76,6 @@ int main(void){
       /* wpを最新のpersonal構造体を指し示すようにする (1) */
       wp = newdata ;
     }
-    i++ ;
   }
   fclose(fp) ;
 

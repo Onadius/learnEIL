@@ -22,7 +22,7 @@ struct services {
 
 /* 関数プロトタイプ宣言 */
 void extructStr(char *str, int i, struct services *miku) ;
-
+void output(struct services *wp, struct services *start) ;
 
 /* main関数 */
 int main(void){
@@ -67,7 +67,6 @@ int main(void){
 
 
     /* 以下、自己参照構造体への格納処理 */
-
     newdata = (struct services *)malloc(sizeof(struct services)); /* 領域確保 */
     if (newdata == NULL){
       printf("sonnna namae no hito siranai !\n") ; /* 領域確保不可 */
@@ -96,10 +95,7 @@ int main(void){
   fclose(fp) ;
 
   /* 出力 */
-  for( wp = start->next ; wp != NULL ; wp = wp->next ){
-    printf("[serviceName] : %s  [portNumber] : %s  [Protocol] : %s\n",
-    wp->service_name, wp->port_number, wp->protocol);
-  }
+  output(wp, start) ;
 
   free(newdata) ;
   return 0 ;
@@ -128,7 +124,14 @@ void extructStr(char *str, int i, struct services *miku) {
 }
 
 
+/* 出力関数 */
+void output(struct services *wp, struct services *start) {
 
+  for( wp = start->next ; wp != NULL ; wp = wp->next ){
+    printf("[serviceName] : %s  [portNumber] : %s  [Protocol] : %s\n",
+    wp->service_name, wp->port_number, wp->protocol);
+  }
+}
 
 /* -- 結果
 
