@@ -67,8 +67,6 @@ int main(void){
 
     /* 文字列抽出関数呼び出し */
     extructStr(str, newdata) ;
-
-    /* 最新データのbeforeを、ひとつ前のwpにする */
     newdata->before = wp ;
 
     if( wp->next == NULL ) {
@@ -83,6 +81,7 @@ int main(void){
       /* wpを最新のpersonal構造体を指し示すようにする (1) */
       wp = newdata ;
     }
+
   }
 
   /* 双方向循環リスト処理  */
