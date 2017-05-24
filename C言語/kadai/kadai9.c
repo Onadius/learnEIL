@@ -88,7 +88,7 @@ int main(void){
 }
 
 
-/* 文字列抽出及び構造体配列への格納関数 */
+/* 文字列抽出及び構造体への格納関数 */
 void extructStr(char *str, struct services *newdata) {
 
   char *s1, *s2, *s3 ;

@@ -1,6 +1,6 @@
 /*
-自己参照構造体として定義しなおし、
-線形リストにて格納、表示を行え
+環状リストを用いて、
+サービス名順にファイル書き込み
 */
 
 #include <stdio.h>
@@ -30,16 +30,22 @@ int main(void){
   char fname[] = "services.txt" ;
   FILE *fp ;
   char str[MOZINUM] ;
+  int  i ;
+  int  j ;
 
   /* -- 自己参照構造体定義 -- */
   struct services dmy ;
   struct services *start = &dmy ; //先頭の構造体
   struct services *newdata ; // 最新データ格納用
   struct services *wp ; // 現在位置用
+  struct services *nisemono ;
+  struct services *honnmono ;
+  struct services *dummyH ;
+  struct services *dummyN ;
 
   start->next = NULL ;
   start->before = NULL ;
-  wp = start; //初期化している (1)
+  wp = start ; //初期化している (1)
 
 
   /* -- ファイルオープン -- */
@@ -81,22 +87,71 @@ int main(void){
       /* wpを最新のpersonal構造体を指し示すようにする (1) */
       wp = newdata ;
     }
-
   }
 
-  /* 双方向循環リスト処理  */
+  /* 双方向循環リスト処理 */
   start->before = wp ;
   wp->next = start ;
 
 
-  /* 出力 before順に */
+
+  /* ファイル出力 before順に */
   output(wp, start, dmy) ;
+
+
+  /*------------------ sort関数作成途中 ------------------------*/
+  honnmono = wp ;
+  nisemono = wp ;
+  dummyH = wp ;
+  dummyN = wp ;
+
+
+  for( honnmono = start->next ; honnmono->next != start ; honnmono = honnmono->next ) {
+
+    for( nisemono = honnmono->next ; nisemono->next != start ; nisemono = nisemono->next ) {
+
+      if( strcmp(honnmono->service_name, honnmono->next->service_name) > 0 ) {
+
+        //一旦格納させる。元のデータが扱える
+        dummyH = honnmono ;
+        dummyN = nisemono ;
+
+        honnmono->before->next = dummyN ;
+
+        //(1)honnmonoのnextつなぎ変え
+        honnmono->next = dummyN->next ;
+
+        //(2)honnmonoへのbeforeの繋ぎ変え
+        dummyN->next->before = honnmono ;
+
+        //(3)nisemono(dummyN)のnextをhonnmonoへつなぎ変え
+        dummyN->next = honnmono ;
+
+        //honnmonoのbeforeをnisemono(dummyN)へつなぎ変え
+        honnmono->before = dummyN ;
+
+        dummyN->before = dummyH->before ;
+
+      }
+    }
+  }
+
+  printf("We'll rock you!!\n");
+  for( honnmono = start ; honnmono->next != start ; honnmono = honnmono->next ) {
+
+    printf("[serviceName] : %s  [portNumber] : %s  [Protocol] : %s\n",
+    honnmono->service_name, honnmono->port_number, honnmono->protocol);
+  }
+
+  /*------------------------------------------*/
+
 
   free(newdata) ;
   fclose(fp) ;
   return 0 ;
 }
 
+/*  ------------------------------------------------------------------- */
 
 /* 文字列抽出及び構造体配列への格納関数 */
 void extructStr(char *str, struct services *newdata) {
@@ -117,17 +172,27 @@ void extructStr(char *str, struct services *newdata) {
 }
 
 
-/* 出力関数 */
+/* ファイル出力関数 */
 void output(struct services *wp, struct services *start, struct services dmy) {
+
+  /*出力ファイル用変数*/
+  char fname[] = "mikumiku.txt" ;
+  FILE *opnfile ;
+
+  if((opnfile = fopen(fname, "w")) == NULL){
+    printf("can't open file\n") ;
+  }
 
   /* next順に表示。末尾wp->nextが先頭アドレスstartを指すときloop終了 */
   for( wp = start ; wp->next != start ; wp = wp->next ){
 
-    printf("[serviceName] : %s  [portNumber] : %s  [Protocol] : %s\n",
+    fprintf(opnfile, "[serviceName] : %s  [portNumber] : %s  [Protocol] : %s\n",
     wp->service_name, wp->port_number, wp->protocol);
   }
-}
 
+  fclose(opnfile) ;
+
+}
 
 
 /* -- 結果

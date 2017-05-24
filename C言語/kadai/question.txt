@@ -12,10 +12,7 @@ kadai9 ~ 10
     ループさせる((1)へ)
 
 
-Q1:
-FILEROWを使用せずに、
-extructStr()関数にて文字列を抽出し、newdataに格納させたい
---> struct services sagiri[]と*mikuを使いたくない。
+
 
 Q2:
 循環リストを作成するにあたり、
