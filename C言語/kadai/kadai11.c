@@ -22,6 +22,9 @@ struct services {
 /* 関数プロトタイプ宣言 */
 void extructStr(char *str, struct services *newdata) ;
 void output(struct services *wp, struct services *start, struct services dmy) ;
+void Replace(struct services *honnmono, struct services *nisemono) ;
+void Unlink(struct services *element) ;
+void Link(struct services *NextElem, struct services *LinkElem) ;
 
 
 /* main関数 */
@@ -30,8 +33,7 @@ int main(void){
   char fname[] = "services.txt" ;
   FILE *fp ;
   char str[MOZINUM] ;
-  int  i ;
-  int  j ;
+  int  ret ;
 
   /* -- 自己参照構造体定義 -- */
   struct services dmy ;
@@ -40,8 +42,6 @@ int main(void){
   struct services *wp ; // 現在位置用
   struct services *nisemono ;
   struct services *honnmono ;
-  struct services *dummyH ;
-  struct services *dummyN ;
 
   start->next = NULL ;
   start->before = NULL ;
@@ -93,8 +93,6 @@ int main(void){
   start->before = wp ;
   wp->next = start ;
 
-
-
   /* ファイル出力 before順に */
   output(wp, start, dmy) ;
 
@@ -102,39 +100,20 @@ int main(void){
   /*------------------ sort関数作成途中 ------------------------*/
   honnmono = wp ;
   nisemono = wp ;
-  dummyH = wp ;
-  dummyN = wp ;
 
+  for( honnmono = start->next ; honnmono != start ; honnmono = honnmono->next ) {
+    for(  nisemono = honnmono->next ; nisemono != start ; nisemono = nisemono->next ) {
 
-  for( honnmono = start->next ; honnmono->next != start ; honnmono = honnmono->next ) {
+      ret = strcmp(nisemono->service_name, honnmono->service_name) ;
+      //printf("%d\n", ret) ;
 
-    for( nisemono = honnmono->next ; nisemono->next != start ; nisemono = nisemono->next ) {
-
-      if( strcmp(honnmono->service_name, honnmono->next->service_name) > 0 ) {
-
-        //一旦格納させる。元のデータが扱える
-        dummyH = honnmono ;
-        dummyN = nisemono ;
-
-        honnmono->before->next = dummyN ;
-
-        //(1)honnmonoのnextつなぎ変え
-        honnmono->next = dummyN->next ;
-
-        //(2)honnmonoへのbeforeの繋ぎ変え
-        dummyN->next->before = honnmono ;
-
-        //(3)nisemono(dummyN)のnextをhonnmonoへつなぎ変え
-        dummyN->next = honnmono ;
-
-        //honnmonoのbeforeをnisemono(dummyN)へつなぎ変え
-        honnmono->before = dummyN ;
-
-        dummyN->before = dummyH->before ;
-
+      if( ret == -1 ) {
+        Replace(honnmono, nisemono) ;
+        honnmono = nisemono ;
       }
     }
   }
+
 
   printf("We'll rock you!!\n");
   for( honnmono = start ; honnmono->next != start ; honnmono = honnmono->next ) {
@@ -144,7 +123,11 @@ int main(void){
   }
 
   /*------------------------------------------*/
-
+/*
+xe: cannot open output file
+C:\Users\ADMINI~1\AppData\Local\Temp\kadai11.exe: Permission denied
+collect2.exe: error: ld returned 1 exit status
+*/
 
   free(newdata) ;
   fclose(fp) ;
@@ -191,7 +174,54 @@ void output(struct services *wp, struct services *start, struct services dmy) {
   }
 
   fclose(opnfile) ;
+}
 
+
+/* ---入れ替え関数 --- */
+void Replace(struct services *honnmono, struct services *nisemono) {
+
+  struct services *Back ;
+  struct services *Next ;
+
+  Back = honnmono->before ;
+  Next = nisemono->next ;
+
+  Unlink(honnmono) ;
+  Unlink(nisemono) ;
+
+  Link(Back->next, nisemono) ; //Back->nextには何もないよ
+  Link(Next, honnmono) ;
+
+}
+
+
+/* ---- 渡した構造体ポインタの前後つながり消去関数 ---- */
+void Unlink(struct services *element) {
+
+  struct services *BackElem ;
+  struct services *NextElem ;
+
+  BackElem = element->before ;
+  NextElem = element->next ;
+
+  BackElem->next = NextElem ;
+  NextElem->before = BackElem ;
+
+  return ;
+}
+
+
+/* --- 連結関数 --- */
+void Link(struct services *NextElem, struct services *LinkElem) {
+  struct services *PrevElem ;
+
+  PrevElem = NextElem->before ;
+  LinkElem->before = PrevElem ;
+  LinkElem->next = NextElem ;
+  PrevElem->next = LinkElem ;
+  NextElem->before = LinkElem ;
+
+  return ;
 }
 
 
