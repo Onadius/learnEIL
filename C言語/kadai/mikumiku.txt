@@ -1,331 +1,275 @@
-[serviceName] :   [portNumber] : ðKp  [Protocol] : ÿÿ
-[serviceName] : echo  [portNumber] : 7  [Protocol] : tcp
-
-[serviceName] : echo  [portNumber] : 7  [Protocol] : udp
-
-[serviceName] : discard  [portNumber] : 9  [Protocol] : tcp
-[serviceName] : discard  [portNumber] : 9  [Protocol] : udp
-[serviceName] : systat  [portNumber] : 11  [Protocol] : tcp
-[serviceName] : systat  [portNumber] : 11  [Protocol] : udp
-[serviceName] : daytime  [portNumber] : 13  [Protocol] : tcp
-
-[serviceName] : daytime  [portNumber] : 13  [Protocol] : udp
-
-[serviceName] : qotd  [portNumber] : 17  [Protocol] : tcp
-[serviceName] : qotd  [portNumber] : 17  [Protocol] : udp
+[serviceName] :   [portNumber] : èK|  [Protocol] : 
+[serviceName] : activesync  [portNumber] : 1034  [Protocol] : tcp
+[serviceName] : afpovertcp  [portNumber] : 548  [Protocol] : udp
+[serviceName] : afpovertcp  [portNumber] : 548  [Protocol] : tcp
+[serviceName] : auth  [portNumber] : 113  [Protocol] : tcp
+[serviceName] : bgp  [portNumber] : 179  [Protocol] : tcp
+[serviceName] : biff  [portNumber] : 512  [Protocol] : udp
+[serviceName] : bootpc  [portNumber] : 68  [Protocol] : udp
+[serviceName] : bootps  [portNumber] : 67  [Protocol] : udp
 [serviceName] : chargen  [portNumber] : 19  [Protocol] : tcp
 [serviceName] : chargen  [portNumber] : 19  [Protocol] : udp
-[serviceName] : ftp-data  [portNumber] : 20  [Protocol] : tcp
-[serviceName] : ftp  [portNumber] : 21  [Protocol] : tcp
-[serviceName] : ssh  [portNumber] : 22  [Protocol] : tcp
-[serviceName] : telnet  [portNumber] : 23  [Protocol] : tcp
-
-[serviceName] : smtp  [portNumber] : 25  [Protocol] : tcp
-[serviceName] : time  [portNumber] : 37  [Protocol] : tcp
-[serviceName] : time  [portNumber] : 37  [Protocol] : udp
-[serviceName] : rlp  [portNumber] : 39  [Protocol] : udp
-[serviceName] : nameserver  [portNumber] : 42  [Protocol] : tcp
-[serviceName] : nameserver  [portNumber] : 42  [Protocol] : udp
-[serviceName] : nicname  [portNumber] : 43  [Protocol] : tcp
-[serviceName] : domain  [portNumber] : 53  [Protocol] : tcp
+[serviceName] : cifs  [portNumber] : 3020  [Protocol] : tcp
+[serviceName] : cifs  [portNumber] : 3020  [Protocol] : udp
+[serviceName] : close-combat  [portNumber] : 1944  [Protocol] : tcp
+[serviceName] : close-combat  [portNumber] : 1944  [Protocol] : udp
+[serviceName] : cmd  [portNumber] : 514  [Protocol] : tcp
+[serviceName] : conference  [portNumber] : 531  [Protocol] : tcp
+[serviceName] : courier  [portNumber] : 530  [Protocol] : tcp
+[serviceName] : crs  [portNumber] : 507  [Protocol] : udp
+[serviceName] : crs  [portNumber] : 507  [Protocol] : tcp
+[serviceName] : daytime  [portNumber] : 13  [Protocol] : udp
+[serviceName] : daytime  [portNumber] : 13  [Protocol] : tcp
+[serviceName] : dccm  [portNumber] : 5679  [Protocol] : tcp
+[serviceName] : dccm  [portNumber] : 5679  [Protocol] : udp
+[serviceName] : dhcpv6-client  [portNumber] : 546  [Protocol] : udp
+[serviceName] : dhcpv6-client  [portNumber] : 546  [Protocol] : tcp
+[serviceName] : dhcpv6-server  [portNumber] : 547  [Protocol] : udp
+[serviceName] : dhcpv6-server  [portNumber] : 547  [Protocol] : tcp
+[serviceName] : directplay  [portNumber] : 2234  [Protocol] : tcp
+[serviceName] : directplay  [portNumber] : 2234  [Protocol] : udp
+[serviceName] : directplay8  [portNumber] : 6073  [Protocol] : tcp
+[serviceName] : directplay8  [portNumber] : 6073  [Protocol] : udp
+[serviceName] : directplaysrvr  [portNumber] : 47624  [Protocol] : tcp
+[serviceName] : directplaysrvr  [portNumber] : 47624  [Protocol] : udp
+[serviceName] : discard  [portNumber] : 9  [Protocol] : udp
+[serviceName] : discard  [portNumber] : 9  [Protocol] : tcp
 [serviceName] : domain  [portNumber] : 53  [Protocol] : udp
-[serviceName] : bootps  [portNumber] : 67  [Protocol] : udp
-[serviceName] : bootpc  [portNumber] : 68  [Protocol] : udp
-[serviceName] : tftp  [portNumber] : 69  [Protocol] : udp
-[serviceName] : gopher  [portNumber] : 70  [Protocol] : tcp
-
+[serviceName] : domain  [portNumber] : 53  [Protocol] : tcp
+[serviceName] : doom  [portNumber] : 666  [Protocol] : udp
+[serviceName] : doom  [portNumber] : 666  [Protocol] : tcp
+[serviceName] : dvcprov-port  [portNumber] : 3776  [Protocol] : tcp
+[serviceName] : dvcprov-port  [portNumber] : 3776  [Protocol] : udp
+[serviceName] : echo  [portNumber] : 7  [Protocol] : udp
+[serviceName] : echo  [portNumber] : 7  [Protocol] : tcp
+[serviceName] : efs  [portNumber] : 520  [Protocol] : tcp
+[serviceName] : epmap  [portNumber] : 135  [Protocol] : udp
+[serviceName] : epmap  [portNumber] : 135  [Protocol] : tcp
+[serviceName] : exec  [portNumber] : 512  [Protocol] : tcp
 [serviceName] : finger  [portNumber] : 79  [Protocol] : tcp
-
-[serviceName] : http  [portNumber] : 80  [Protocol] : tcp
+[serviceName] : ftp  [portNumber] : 21  [Protocol] : tcp
+[serviceName] : ftp-data  [portNumber] : 20  [Protocol] : tcp
+[serviceName] : ftps  [portNumber] : 990  [Protocol] : tcp
+[serviceName] : ftps-data  [portNumber] : 989  [Protocol] : tcp
+[serviceName] : gopher  [portNumber] : 70  [Protocol] : tcp
+[serviceName] : hmmp-ind  [portNumber] : 612  [Protocol] : udp
+[serviceName] : hmmp-ind  [portNumber] : 612  [Protocol] : tcp
+[serviceName] : hmmp-op  [portNumber] : 613  [Protocol] : udp
+[serviceName] : hmmp-op  [portNumber] : 613  [Protocol] : tcp
+[serviceName] : hostname  [portNumber] : 101  [Protocol] : tcp
 [serviceName] : hosts2-ns  [portNumber] : 81  [Protocol] : tcp
 [serviceName] : hosts2-ns  [portNumber] : 81  [Protocol] : udp
+[serviceName] : http  [portNumber] : 80  [Protocol] : tcp
+[serviceName] : http-rpc-epmap  [portNumber] : 593  [Protocol] : udp
+[serviceName] : http-rpc-epmap  [portNumber] : 593  [Protocol] : tcp
+[serviceName] : https  [portNumber] : 443  [Protocol] : udp
+[serviceName] : https  [portNumber] : 443  [Protocol] : tcp
+[serviceName] : icslap  [portNumber] : 2869  [Protocol] : tcp
+[serviceName] : icslap  [portNumber] : 2869  [Protocol] : udp
+[serviceName] : imap  [portNumber] : 143  [Protocol] : tcp
+[serviceName] : imaps  [portNumber] : 993  [Protocol] : tcp
+[serviceName] : imip-channels  [portNumber] : 11320  [Protocol] : tcp
+[serviceName] : imip-channels  [portNumber] : 11320  [Protocol] : udp
+[serviceName] : ingreslock  [portNumber] : 1524  [Protocol] : tcp
+[serviceName] : ipsec-msft  [portNumber] : 4500  [Protocol] : tcp
+[serviceName] : ipsec-msft  [portNumber] : 4500  [Protocol] : udp
+[serviceName] : ipx  [portNumber] : 213  [Protocol] : udp
+[serviceName] : irc  [portNumber] : 194  [Protocol] : tcp
+[serviceName] : irc-serv  [portNumber] : 529  [Protocol] : udp
+[serviceName] : irc-serv  [portNumber] : 529  [Protocol] : tcp
+[serviceName] : ircs  [portNumber] : 994  [Protocol] : tcp
+[serviceName] : isakmp  [portNumber] : 500  [Protocol] : udp
+[serviceName] : iso-tsap  [portNumber] : 102  [Protocol] : tcp
 [serviceName] : kerberos  [portNumber] : 88  [Protocol] : tcp
 [serviceName] : kerberos  [portNumber] : 88  [Protocol] : udp
-[serviceName] : hostname  [portNumber] : 101  [Protocol] : tcp
-[serviceName] : iso-tsap  [portNumber] : 102  [Protocol] : tcp
-[serviceName] : rtelnet  [portNumber] : 107  [Protocol] : tcp
-[serviceName] : pop2  [portNumber] : 109  [Protocol] : tcp
-[serviceName] : pop3  [portNumber] : 110  [Protocol] : tcp
-[serviceName] : sunrpc  [portNumber] : 111  [Protocol] : tcp
-[serviceName] : sunrpc  [portNumber] : 111  [Protocol] : udp
-[serviceName] : auth  [portNumber] : 113  [Protocol] : tcp
-[serviceName] : uucp-path  [portNumber] : 117  [Protocol] : tcp
-
-[serviceName] : sqlserv  [portNumber] : 118  [Protocol] : tcp
-[serviceName] : nntp  [portNumber] : 119  [Protocol] : tcp
-[serviceName] : ntp  [portNumber] : 123  [Protocol] : udp
-[serviceName] : epmap  [portNumber] : 135  [Protocol] : tcp
-[serviceName] : epmap  [portNumber] : 135  [Protocol] : udp
-[serviceName] : netbios-ns  [portNumber] : 137  [Protocol] : tcp
-[serviceName] : netbios-ns  [portNumber] : 137  [Protocol] : udp
-[serviceName] : netbios-dgm  [portNumber] : 138  [Protocol] : udp
-[serviceName] : netbios-ssn  [portNumber] : 139  [Protocol] : tcp
-[serviceName] : imap  [portNumber] : 143  [Protocol] : tcp
-[serviceName] : sql-net  [portNumber] : 150  [Protocol] : tcp
-
-[serviceName] : sqlsrv  [portNumber] : 156  [Protocol] : tcp
-
-[serviceName] : pcmail-srv  [portNumber] : 158  [Protocol] : tcp
-[serviceName] : snmp  [portNumber] : 161  [Protocol] : udp
-[serviceName] : snmptrap  [portNumber] : 162  [Protocol] : udp
-[serviceName] : print-srv  [portNumber] : 170  [Protocol] : tcp
-[serviceName] : bgp  [portNumber] : 179  [Protocol] : tcp
-[serviceName] : irc  [portNumber] : 194  [Protocol] : tcp
-[serviceName] : ipx  [portNumber] : 213  [Protocol] : udp
-[serviceName] : rtsps  [portNumber] : 322  [Protocol] : tcp
-
-[serviceName] : rtsps  [portNumber] : 322  [Protocol] : udp
-
-[serviceName] : mftp  [portNumber] : 349  [Protocol] : tcp
-
-[serviceName] : mftp  [portNumber] : 349  [Protocol] : udp
-
-[serviceName] : ldap  [portNumber] : 389  [Protocol] : tcp
-[serviceName] : https  [portNumber] : 443  [Protocol] : tcp
-[serviceName] : https  [portNumber] : 443  [Protocol] : udp
-[serviceName] : microsoft-ds  [portNumber] : 445  [Protocol] : tcp
-
-[serviceName] : microsoft-ds  [portNumber] : 445  [Protocol] : udp
-
-[serviceName] : kpasswd  [portNumber] : 464  [Protocol] : tcp
-[serviceName] : kpasswd  [portNumber] : 464  [Protocol] : udp
-[serviceName] : isakmp  [portNumber] : 500  [Protocol] : udp
-[serviceName] : crs  [portNumber] : 507  [Protocol] : tcp
-[serviceName] : crs  [portNumber] : 507  [Protocol] : udp
-[serviceName] : exec  [portNumber] : 512  [Protocol] : tcp
-[serviceName] : biff  [portNumber] : 512  [Protocol] : udp
-[serviceName] : login  [portNumber] : 513  [Protocol] : tcp
-[serviceName] : who  [portNumber] : 513  [Protocol] : udp
-[serviceName] : cmd  [portNumber] : 514  [Protocol] : tcp
-[serviceName] : syslog  [portNumber] : 514  [Protocol] : udp
-
-[serviceName] : printer  [portNumber] : 515  [Protocol] : tcp
-[serviceName] : talk  [portNumber] : 517  [Protocol] : udp
-
-[serviceName] : ntalk  [portNumber] : 518  [Protocol] : udp
-
-[serviceName] : efs  [portNumber] : 520  [Protocol] : tcp
-[serviceName] : router  [portNumber] : 520  [Protocol] : udp
-[serviceName] : ulp  [portNumber] : 522  [Protocol] : tcp
-
-[serviceName] : ulp  [portNumber] : 522  [Protocol] : udp
-
-[serviceName] : timed  [portNumber] : 525  [Protocol] : udp
-[serviceName] : tempo  [portNumber] : 526  [Protocol] : tcp
-[serviceName] : irc-serv  [portNumber] : 529  [Protocol] : tcp
-
-[serviceName] : irc-serv  [portNumber] : 529  [Protocol] : udp
-
-[serviceName] : courier  [portNumber] : 530  [Protocol] : tcp
-[serviceName] : conference  [portNumber] : 531  [Protocol] : tcp
-[serviceName] : netnews  [portNumber] : 532  [Protocol] : tcp
-[serviceName] : netwall  [portNumber] : 533  [Protocol] : udp
-[serviceName] : uucp  [portNumber] : 540  [Protocol] : tcp
-[serviceName] : klogin  [portNumber] : 543  [Protocol] : tcp
-[serviceName] : kshell  [portNumber] : 544  [Protocol] : tcp
-[serviceName] : dhcpv6-client  [portNumber] : 546  [Protocol] : tcp
-[serviceName] : dhcpv6-client  [portNumber] : 546  [Protocol] : udp
-[serviceName] : dhcpv6-server  [portNumber] : 547  [Protocol] : tcp
-[serviceName] : dhcpv6-server  [portNumber] : 547  [Protocol] : udp
-[serviceName] : afpovertcp  [portNumber] : 548  [Protocol] : tcp
-[serviceName] : afpovertcp  [portNumber] : 548  [Protocol] : udp
-[serviceName] : new-rwho  [portNumber] : 550  [Protocol] : udp
-[serviceName] : rtsp  [portNumber] : 554  [Protocol] : tcp
-[serviceName] : rtsp  [portNumber] : 554  [Protocol] : udp
-[serviceName] : remotefs  [portNumber] : 556  [Protocol] : tcp
-[serviceName] : rmonitor  [portNumber] : 560  [Protocol] : udp
-[serviceName] : monitor  [portNumber] : 561  [Protocol] : udp
-
-[serviceName] : nntps  [portNumber] : 563  [Protocol] : tcp
-[serviceName] : nntps  [portNumber] : 563  [Protocol] : udp
-[serviceName] : whoami  [portNumber] : 565  [Protocol] : tcp
-
-[serviceName] : whoami  [portNumber] : 565  [Protocol] : udp
-
-[serviceName] : ms-shuttle  [portNumber] : 568  [Protocol] : tcp
-[serviceName] : ms-shuttle  [portNumber] : 568  [Protocol] : udp
-[serviceName] : ms-rome  [portNumber] : 569  [Protocol] : tcp
-[serviceName] : ms-rome  [portNumber] : 569  [Protocol] : udp
-[serviceName] : http-rpc-epmap  [portNumber] : 593  [Protocol] : tcp
-[serviceName] : http-rpc-epmap  [portNumber] : 593  [Protocol] : udp
-[serviceName] : hmmp-ind  [portNumber] : 612  [Protocol] : tcp
-[serviceName] : hmmp-ind  [portNumber] : 612  [Protocol] : udp
-[serviceName] : hmmp-op  [portNumber] : 613  [Protocol] : tcp
-[serviceName] : hmmp-op  [portNumber] : 613  [Protocol] : udp
-[serviceName] : ldaps  [portNumber] : 636  [Protocol] : tcp
-[serviceName] : doom  [portNumber] : 666  [Protocol] : tcp
-[serviceName] : doom  [portNumber] : 666  [Protocol] : udp
-[serviceName] : msexch-routing  [portNumber] : 691  [Protocol] : tcp
-[serviceName] : msexch-routing  [portNumber] : 691  [Protocol] : udp
 [serviceName] : kerberos-adm  [portNumber] : 749  [Protocol] : tcp
 [serviceName] : kerberos-adm  [portNumber] : 749  [Protocol] : udp
 [serviceName] : kerberos-iv  [portNumber] : 750  [Protocol] : udp
-[serviceName] : mdbs_daemon  [portNumber] : 800  [Protocol] : tcp
-
-[serviceName] : mdbs_daemon  [portNumber] : 800  [Protocol] : udp
-
-[serviceName] : ftps-data  [portNumber] : 989  [Protocol] : tcp
-[serviceName] : ftps  [portNumber] : 990  [Protocol] : tcp
-[serviceName] : telnets  [portNumber] : 992  [Protocol] : tcp
-[serviceName] : imaps  [portNumber] : 993  [Protocol] : tcp
-[serviceName] : ircs  [portNumber] : 994  [Protocol] : tcp
-[serviceName] : pop3s  [portNumber] : 995  [Protocol] : tcp
-[serviceName] : pop3s  [portNumber] : 995  [Protocol] : udp
+[serviceName] : klogin  [portNumber] : 543  [Protocol] : tcp
+[serviceName] : knetd  [portNumber] : 2053  [Protocol] : tcp
+[serviceName] : kpasswd  [portNumber] : 464  [Protocol] : tcp
+[serviceName] : kpasswd  [portNumber] : 464  [Protocol] : udp
 [serviceName] : kpop  [portNumber] : 1109  [Protocol] : tcp
-[serviceName] : nfsd-status  [portNumber] : 1110  [Protocol] : tcp
-[serviceName] : nfsd-keepalive  [portNumber] : 1110  [Protocol] : udp
-[serviceName] : nfa  [portNumber] : 1155  [Protocol] : tcp
-[serviceName] : nfa  [portNumber] : 1155  [Protocol] : udp
-[serviceName] : activesync  [portNumber] : 1034  [Protocol] : tcp
-[serviceName] : phone  [portNumber] : 1167  [Protocol] : udp
-[serviceName] : opsmgr  [portNumber] : 1270  [Protocol] : tcp
-[serviceName] : opsmgr  [portNumber] : 1270  [Protocol] : udp
-[serviceName] : ms-sql-s  [portNumber] : 1433  [Protocol] : tcp
-[serviceName] : ms-sql-s  [portNumber] : 1433  [Protocol] : udp
+[serviceName] : kshell  [portNumber] : 544  [Protocol] : tcp
+[serviceName] : l2tp  [portNumber] : 1701  [Protocol] : udp
+[serviceName] : ldap  [portNumber] : 389  [Protocol] : tcp
+[serviceName] : ldaps  [portNumber] : 636  [Protocol] : tcp
+[serviceName] : llmnr  [portNumber] : 5355  [Protocol] : tcp
+[serviceName] : llmnr  [portNumber] : 5355  [Protocol] : udp
+[serviceName] : login  [portNumber] : 513  [Protocol] : tcp
+[serviceName] : man  [portNumber] : 9535  [Protocol] : tcp
+[serviceName] : mdbs_daemon  [portNumber] : 800  [Protocol] : tcp
+[serviceName] : mdbs_daemon  [portNumber] : 800  [Protocol] : udp
+[serviceName] : mftp  [portNumber] : 349  [Protocol] : udp
+[serviceName] : mftp  [portNumber] : 349  [Protocol] : tcp
+[serviceName] : microsoft-ds  [portNumber] : 445  [Protocol] : tcp
+[serviceName] : microsoft-ds  [portNumber] : 445  [Protocol] : udp
+[serviceName] : monitor  [portNumber] : 561  [Protocol] : udp
+[serviceName] : ms-cluster-net  [portNumber] : 3343  [Protocol] : udp
+[serviceName] : ms-cluster-net  [portNumber] : 3343  [Protocol] : tcp
+[serviceName] : ms-dotnetster  [portNumber] : 3126  [Protocol] : udp
+[serviceName] : ms-dotnetster  [portNumber] : 3126  [Protocol] : tcp
+[serviceName] : ms-la  [portNumber] : 3535  [Protocol] : udp
+[serviceName] : ms-la  [portNumber] : 3535  [Protocol] : tcp
+[serviceName] : ms-licensing  [portNumber] : 5720  [Protocol] : udp
+[serviceName] : ms-licensing  [portNumber] : 5720  [Protocol] : tcp
+[serviceName] : ms-olap1  [portNumber] : 2393  [Protocol] : udp
+[serviceName] : ms-olap1  [portNumber] : 2393  [Protocol] : tcp
+[serviceName] : ms-olap2  [portNumber] : 2394  [Protocol] : udp
+[serviceName] : ms-olap2  [portNumber] : 2394  [Protocol] : tcp
+[serviceName] : ms-olap3  [portNumber] : 2382  [Protocol] : udp
+[serviceName] : ms-olap3  [portNumber] : 2382  [Protocol] : tcp
+[serviceName] : ms-olap4  [portNumber] : 2383  [Protocol] : udp
+[serviceName] : ms-olap4  [portNumber] : 2383  [Protocol] : tcp
+[serviceName] : ms-rome  [portNumber] : 569  [Protocol] : tcp
+[serviceName] : ms-rome  [portNumber] : 569  [Protocol] : udp
+[serviceName] : ms-rule-engine  [portNumber] : 3132  [Protocol] : udp
+[serviceName] : ms-rule-engine  [portNumber] : 3132  [Protocol] : tcp
+[serviceName] : ms-shuttle  [portNumber] : 568  [Protocol] : tcp
+[serviceName] : ms-shuttle  [portNumber] : 568  [Protocol] : udp
+[serviceName] : ms-sna-base  [portNumber] : 1478  [Protocol] : tcp
+[serviceName] : ms-sna-base  [portNumber] : 1478  [Protocol] : udp
+[serviceName] : ms-sna-server  [portNumber] : 1477  [Protocol] : tcp
+[serviceName] : ms-sna-server  [portNumber] : 1477  [Protocol] : udp
 [serviceName] : ms-sql-m  [portNumber] : 1434  [Protocol] : tcp
 [serviceName] : ms-sql-m  [portNumber] : 1434  [Protocol] : udp
-[serviceName] : ms-sna-server  [portNumber] : 1477  [Protocol] : tcp
-
-[serviceName] : ms-sna-server  [portNumber] : 1477  [Protocol] : udp
-
-[serviceName] : ms-sna-base  [portNumber] : 1478  [Protocol] : tcp
-
-[serviceName] : ms-sna-base  [portNumber] : 1478  [Protocol] : udp
-
-[serviceName] : wins  [portNumber] : 1512  [Protocol] : tcp
-[serviceName] : wins  [portNumber] : 1512  [Protocol] : udp
-[serviceName] : ingreslock  [portNumber] : 1524  [Protocol] : tcp
-[serviceName] : stt  [portNumber] : 1607  [Protocol] : tcp
-
-[serviceName] : stt  [portNumber] : 1607  [Protocol] : udp
-
-[serviceName] : l2tp  [portNumber] : 1701  [Protocol] : udp
-[serviceName] : pptconference  [portNumber] : 1711  [Protocol] : tcp
-
-[serviceName] : pptconference  [portNumber] : 1711  [Protocol] : udp
-
-[serviceName] : pptp  [portNumber] : 1723  [Protocol] : tcp
-[serviceName] : msiccp  [portNumber] : 1731  [Protocol] : tcp
-
-[serviceName] : msiccp  [portNumber] : 1731  [Protocol] : udp
-
-[serviceName] : remote-winsock  [portNumber] : 1745  [Protocol] : tcp
-
-[serviceName] : remote-winsock  [portNumber] : 1745  [Protocol] : udp
-
+[serviceName] : ms-sql-s  [portNumber] : 1433  [Protocol] : tcp
+[serviceName] : ms-sql-s  [portNumber] : 1433  [Protocol] : udp
 [serviceName] : ms-streaming  [portNumber] : 1755  [Protocol] : tcp
-
 [serviceName] : ms-streaming  [portNumber] : 1755  [Protocol] : udp
-
-[serviceName] : msmq  [portNumber] : 1801  [Protocol] : tcp
-[serviceName] : msmq  [portNumber] : 1801  [Protocol] : udp
-[serviceName] : radius  [portNumber] : 1812  [Protocol] : udp
-[serviceName] : radacct  [portNumber] : 1813  [Protocol] : udp
-[serviceName] : msnp  [portNumber] : 1863  [Protocol] : tcp
-
-[serviceName] : msnp  [portNumber] : 1863  [Protocol] : udp
-
-[serviceName] : ssdp  [portNumber] : 1900  [Protocol] : tcp
-
-[serviceName] : ssdp  [portNumber] : 1900  [Protocol] : udp
-
-[serviceName] : close-combat  [portNumber] : 1944  [Protocol] : tcp
-
-[serviceName] : close-combat  [portNumber] : 1944  [Protocol] : udp
-
-[serviceName] : nfsd  [portNumber] : 2049  [Protocol] : udp
-[serviceName] : knetd  [portNumber] : 2053  [Protocol] : tcp
-[serviceName] : mzap  [portNumber] : 2106  [Protocol] : tcp
-[serviceName] : mzap  [portNumber] : 2106  [Protocol] : udp
-[serviceName] : qwave  [portNumber] : 2177  [Protocol] : tcp
-[serviceName] : qwave  [portNumber] : 2177  [Protocol] : udp
-[serviceName] : directplay  [portNumber] : 2234  [Protocol] : tcp
-[serviceName] : directplay  [portNumber] : 2234  [Protocol] : udp
-[serviceName] : ms-olap3  [portNumber] : 2382  [Protocol] : tcp
-[serviceName] : ms-olap3  [portNumber] : 2382  [Protocol] : udp
-[serviceName] : ms-olap4  [portNumber] : 2383  [Protocol] : tcp
-[serviceName] : ms-olap4  [portNumber] : 2383  [Protocol] : udp
-[serviceName] : ms-olap1  [portNumber] : 2393  [Protocol] : tcp
-[serviceName] : ms-olap1  [portNumber] : 2393  [Protocol] : udp
-[serviceName] : ms-olap2  [portNumber] : 2394  [Protocol] : tcp
-[serviceName] : ms-olap2  [portNumber] : 2394  [Protocol] : udp
-[serviceName] : ms-theater  [portNumber] : 2460  [Protocol] : tcp
-
 [serviceName] : ms-theater  [portNumber] : 2460  [Protocol] : udp
-
-[serviceName] : wlbs  [portNumber] : 2504  [Protocol] : tcp
-[serviceName] : wlbs  [portNumber] : 2504  [Protocol] : udp
-[serviceName] : ms-v-worlds  [portNumber] : 2525  [Protocol] : tcp
+[serviceName] : ms-theater  [portNumber] : 2460  [Protocol] : tcp
 [serviceName] : ms-v-worlds  [portNumber] : 2525  [Protocol] : udp
-[serviceName] : sms-rcinfo  [portNumber] : 2701  [Protocol] : tcp
-[serviceName] : sms-rcinfo  [portNumber] : 2701  [Protocol] : udp
-[serviceName] : sms-xfer  [portNumber] : 2702  [Protocol] : tcp
-[serviceName] : sms-xfer  [portNumber] : 2702  [Protocol] : udp
-[serviceName] : sms-chat  [portNumber] : 2703  [Protocol] : tcp
-[serviceName] : sms-chat  [portNumber] : 2703  [Protocol] : udp
-[serviceName] : sms-remctrl  [portNumber] : 2704  [Protocol] : tcp
-[serviceName] : sms-remctrl  [portNumber] : 2704  [Protocol] : udp
-[serviceName] : msolap-ptp2  [portNumber] : 2725  [Protocol] : tcp
-[serviceName] : msolap-ptp2  [portNumber] : 2725  [Protocol] : udp
-[serviceName] : icslap  [portNumber] : 2869  [Protocol] : tcp
-
-[serviceName] : icslap  [portNumber] : 2869  [Protocol] : udp
-
-[serviceName] : cifs  [portNumber] : 3020  [Protocol] : tcp
-
-[serviceName] : cifs  [portNumber] : 3020  [Protocol] : udp
-
-[serviceName] : xbox  [portNumber] : 3074  [Protocol] : tcp
-[serviceName] : xbox  [portNumber] : 3074  [Protocol] : udp
-[serviceName] : ms-dotnetster  [portNumber] : 3126  [Protocol] : tcp
-[serviceName] : ms-dotnetster  [portNumber] : 3126  [Protocol] : udp
-[serviceName] : ms-rule-engine  [portNumber] : 3132  [Protocol] : tcp
-[serviceName] : ms-rule-engine  [portNumber] : 3132  [Protocol] : udp
+[serviceName] : ms-v-worlds  [portNumber] : 2525  [Protocol] : tcp
+[serviceName] : ms-wbt-server  [portNumber] : 3389  [Protocol] : udp
+[serviceName] : ms-wbt-server  [portNumber] : 3389  [Protocol] : tcp
+[serviceName] : msdts1  [portNumber] : 3882  [Protocol] : tcp
+[serviceName] : msexch-routing  [portNumber] : 691  [Protocol] : tcp
+[serviceName] : msexch-routing  [portNumber] : 691  [Protocol] : udp
 [serviceName] : msft-gc  [portNumber] : 3268  [Protocol] : tcp
 [serviceName] : msft-gc  [portNumber] : 3268  [Protocol] : udp
 [serviceName] : msft-gc-ssl  [portNumber] : 3269  [Protocol] : tcp
 [serviceName] : msft-gc-ssl  [portNumber] : 3269  [Protocol] : udp
-[serviceName] : ms-cluster-net  [portNumber] : 3343  [Protocol] : tcp
-[serviceName] : ms-cluster-net  [portNumber] : 3343  [Protocol] : udp
-[serviceName] : ms-wbt-server  [portNumber] : 3389  [Protocol] : tcp
-[serviceName] : ms-wbt-server  [portNumber] : 3389  [Protocol] : udp
-[serviceName] : ms-la  [portNumber] : 3535  [Protocol] : tcp
-[serviceName] : ms-la  [portNumber] : 3535  [Protocol] : udp
-[serviceName] : pnrp-port  [portNumber] : 3540  [Protocol] : tcp
-[serviceName] : pnrp-port  [portNumber] : 3540  [Protocol] : udp
-[serviceName] : teredo  [portNumber] : 3544  [Protocol] : tcp
-[serviceName] : teredo  [portNumber] : 3544  [Protocol] : udp
-[serviceName] : p2pgroup  [portNumber] : 3587  [Protocol] : tcp
-[serviceName] : p2pgroup  [portNumber] : 3587  [Protocol] : udp
-[serviceName] : ws-discovery  [portNumber] : 3702  [Protocol] : udp
-[serviceName] : ws-discovery  [portNumber] : 3702  [Protocol] : tcp
-[serviceName] : dvcprov-port  [portNumber] : 3776  [Protocol] : tcp
-[serviceName] : dvcprov-port  [portNumber] : 3776  [Protocol] : udp
 [serviceName] : msfw-control  [portNumber] : 3847  [Protocol] : tcp
-[serviceName] : msdts1  [portNumber] : 3882  [Protocol] : tcp
-[serviceName] : sdp-portmapper  [portNumber] : 3935  [Protocol] : tcp
-[serviceName] : sdp-portmapper  [portNumber] : 3935  [Protocol] : udp
-[serviceName] : net-device  [portNumber] : 4350  [Protocol] : tcp
+[serviceName] : msiccp  [portNumber] : 1731  [Protocol] : tcp
+[serviceName] : msiccp  [portNumber] : 1731  [Protocol] : udp
+[serviceName] : msmq  [portNumber] : 1801  [Protocol] : tcp
+[serviceName] : msmq  [portNumber] : 1801  [Protocol] : udp
+[serviceName] : msnp  [portNumber] : 1863  [Protocol] : tcp
+[serviceName] : msnp  [portNumber] : 1863  [Protocol] : udp
+[serviceName] : msolap-ptp2  [portNumber] : 2725  [Protocol] : udp
+[serviceName] : msolap-ptp2  [portNumber] : 2725  [Protocol] : tcp
+[serviceName] : mzap  [portNumber] : 2106  [Protocol] : udp
+[serviceName] : mzap  [portNumber] : 2106  [Protocol] : tcp
+[serviceName] : nameserver  [portNumber] : 42  [Protocol] : tcp
+[serviceName] : nameserver  [portNumber] : 42  [Protocol] : udp
 [serviceName] : net-device  [portNumber] : 4350  [Protocol] : udp
-[serviceName] : ipsec-msft  [portNumber] : 4500  [Protocol] : tcp
-[serviceName] : ipsec-msft  [portNumber] : 4500  [Protocol] : udp
-[serviceName] : llmnr  [portNumber] : 5355  [Protocol] : tcp
-[serviceName] : llmnr  [portNumber] : 5355  [Protocol] : udp
-[serviceName] : wsd  [portNumber] : 5357  [Protocol] : tcp
-[serviceName] : wsd  [portNumber] : 5358  [Protocol] : tcp
-[serviceName] : rrac  [portNumber] : 5678  [Protocol] : tcp
-[serviceName] : rrac  [portNumber] : 5678  [Protocol] : udp
-[serviceName] : dccm  [portNumber] : 5679  [Protocol] : tcp
-[serviceName] : dccm  [portNumber] : 5679  [Protocol] : udp
-[serviceName] : ms-licensing  [portNumber] : 5720  [Protocol] : tcp
-[serviceName] : ms-licensing  [portNumber] : 5720  [Protocol] : udp
-[serviceName] : directplay8  [portNumber] : 6073  [Protocol] : tcp
-[serviceName] : directplay8  [portNumber] : 6073  [Protocol] : udp
-[serviceName] : man  [portNumber] : 9535  [Protocol] : tcp
+[serviceName] : net-device  [portNumber] : 4350  [Protocol] : tcp
+[serviceName] : netbios-dgm  [portNumber] : 138  [Protocol] : udp
+[serviceName] : netbios-ns  [portNumber] : 137  [Protocol] : udp
+[serviceName] : netbios-ns  [portNumber] : 137  [Protocol] : tcp
+[serviceName] : netbios-ssn  [portNumber] : 139  [Protocol] : tcp
+[serviceName] : netnews  [portNumber] : 532  [Protocol] : tcp
+[serviceName] : netwall  [portNumber] : 533  [Protocol] : udp
+[serviceName] : new-rwho  [portNumber] : 550  [Protocol] : udp
+[serviceName] : nfa  [portNumber] : 1155  [Protocol] : udp
+[serviceName] : nfa  [portNumber] : 1155  [Protocol] : tcp
+[serviceName] : nfsd  [portNumber] : 2049  [Protocol] : udp
+[serviceName] : nfsd-keepalive  [portNumber] : 1110  [Protocol] : udp
+[serviceName] : nfsd-status  [portNumber] : 1110  [Protocol] : tcp
+[serviceName] : nicname  [portNumber] : 43  [Protocol] : tcp
+[serviceName] : nntp  [portNumber] : 119  [Protocol] : tcp
+[serviceName] : nntps  [portNumber] : 563  [Protocol] : udp
+[serviceName] : nntps  [portNumber] : 563  [Protocol] : tcp
+[serviceName] : ntalk  [portNumber] : 518  [Protocol] : udp
+[serviceName] : ntp  [portNumber] : 123  [Protocol] : udp
+[serviceName] : opsmgr  [portNumber] : 1270  [Protocol] : udp
+[serviceName] : opsmgr  [portNumber] : 1270  [Protocol] : tcp
+[serviceName] : p2pgroup  [portNumber] : 3587  [Protocol] : udp
+[serviceName] : p2pgroup  [portNumber] : 3587  [Protocol] : tcp
+[serviceName] : pcmail-srv  [portNumber] : 158  [Protocol] : tcp
+[serviceName] : phone  [portNumber] : 1167  [Protocol] : udp
+[serviceName] : pnrp-port  [portNumber] : 3540  [Protocol] : udp
+[serviceName] : pnrp-port  [portNumber] : 3540  [Protocol] : tcp
+[serviceName] : pop2  [portNumber] : 109  [Protocol] : tcp
+[serviceName] : pop3  [portNumber] : 110  [Protocol] : tcp
+[serviceName] : pop3s  [portNumber] : 995  [Protocol] : tcp
+[serviceName] : pop3s  [portNumber] : 995  [Protocol] : udp
+[serviceName] : pptconference  [portNumber] : 1711  [Protocol] : udp
+[serviceName] : pptconference  [portNumber] : 1711  [Protocol] : tcp
+[serviceName] : pptp  [portNumber] : 1723  [Protocol] : tcp
+[serviceName] : print-srv  [portNumber] : 170  [Protocol] : tcp
+[serviceName] : printer  [portNumber] : 515  [Protocol] : tcp
+[serviceName] : qotd  [portNumber] : 17  [Protocol] : udp
+[serviceName] : qotd  [portNumber] : 17  [Protocol] : tcp
+[serviceName] : qwave  [portNumber] : 2177  [Protocol] : udp
+[serviceName] : qwave  [portNumber] : 2177  [Protocol] : tcp
+[serviceName] : radacct  [portNumber] : 1813  [Protocol] : udp
+[serviceName] : radius  [portNumber] : 1812  [Protocol] : udp
 [serviceName] : rasadv  [portNumber] : 9753  [Protocol] : tcp
-
 [serviceName] : rasadv  [portNumber] : 9753  [Protocol] : udp
-
-[serviceName] : imip-channels  [portNumber] : 11320  [Protocol] : tcp
-[serviceName] : imip-channels  [portNumber] : 11320  [Protocol] : udp
-[serviceName] : directplaysrvr  [portNumber] : 47624  [Protocol] : tcp
+[serviceName] : remote-winsock  [portNumber] : 1745  [Protocol] : udp
+[serviceName] : remote-winsock  [portNumber] : 1745  [Protocol] : tcp
+[serviceName] : remotefs  [portNumber] : 556  [Protocol] : tcp
+[serviceName] : rlp  [portNumber] : 39  [Protocol] : udp
+[serviceName] : rmonitor  [portNumber] : 560  [Protocol] : udp
+[serviceName] : router  [portNumber] : 520  [Protocol] : udp
+[serviceName] : rrac  [portNumber] : 5678  [Protocol] : udp
+[serviceName] : rrac  [portNumber] : 5678  [Protocol] : tcp
+[serviceName] : rtelnet  [portNumber] : 107  [Protocol] : tcp
+[serviceName] : rtsp  [portNumber] : 554  [Protocol] : tcp
+[serviceName] : rtsp  [portNumber] : 554  [Protocol] : udp
+[serviceName] : rtsps  [portNumber] : 322  [Protocol] : udp
+[serviceName] : rtsps  [portNumber] : 322  [Protocol] : tcp
+[serviceName] : sdp-portmapper  [portNumber] : 3935  [Protocol] : udp
+[serviceName] : sdp-portmapper  [portNumber] : 3935  [Protocol] : tcp
+[serviceName] : sms-chat  [portNumber] : 2703  [Protocol] : udp
+[serviceName] : sms-chat  [portNumber] : 2703  [Protocol] : tcp
+[serviceName] : sms-rcinfo  [portNumber] : 2701  [Protocol] : udp
+[serviceName] : sms-rcinfo  [portNumber] : 2701  [Protocol] : tcp
+[serviceName] : sms-remctrl  [portNumber] : 2704  [Protocol] : udp
+[serviceName] : sms-remctrl  [portNumber] : 2704  [Protocol] : tcp
+[serviceName] : sms-xfer  [portNumber] : 2702  [Protocol] : udp
+[serviceName] : sms-xfer  [portNumber] : 2702  [Protocol] : tcp
+[serviceName] : smtp  [portNumber] : 25  [Protocol] : tcp
+[serviceName] : snmp  [portNumber] : 161  [Protocol] : udp
+[serviceName] : snmptrap  [portNumber] : 162  [Protocol] : udp
+[serviceName] : sql-net  [portNumber] : 150  [Protocol] : tcp
+[serviceName] : sqlserv  [portNumber] : 118  [Protocol] : tcp
+[serviceName] : sqlsrv  [portNumber] : 156  [Protocol] : tcp
+[serviceName] : ssdp  [portNumber] : 1900  [Protocol] : udp
+[serviceName] : ssdp  [portNumber] : 1900  [Protocol] : tcp
+[serviceName] : ssh  [portNumber] : 22  [Protocol] : tcp
+[serviceName] : stt  [portNumber] : 1607  [Protocol] : udp
+[serviceName] : stt  [portNumber] : 1607  [Protocol] : tcp
+[serviceName] : sunrpc  [portNumber] : 111  [Protocol] : udp
+[serviceName] : sunrpc  [portNumber] : 111  [Protocol] : tcp
+[serviceName] : syslog  [portNumber] : 514  [Protocol] : udp
+[serviceName] : systat  [portNumber] : 11  [Protocol] : tcp
+[serviceName] : systat  [portNumber] : 11  [Protocol] : udp
+[serviceName] : talk  [portNumber] : 517  [Protocol] : udp
+[serviceName] : telnet  [portNumber] : 23  [Protocol] : tcp
+[serviceName] : telnets  [portNumber] : 992  [Protocol] : tcp
+[serviceName] : tempo  [portNumber] : 526  [Protocol] : tcp
+[serviceName] : teredo  [portNumber] : 3544  [Protocol] : udp
+[serviceName] : teredo  [portNumber] : 3544  [Protocol] : tcp
+[serviceName] : tftp  [portNumber] : 69  [Protocol] : udp
+[serviceName] : time  [portNumber] : 37  [Protocol] : tcp
+[serviceName] : time  [portNumber] : 37  [Protocol] : udp
+[serviceName] : timed  [portNumber] : 525  [Protocol] : udp
+[serviceName] : ulp  [portNumber] : 522  [Protocol] : tcp
+[serviceName] : ulp  [portNumber] : 522  [Protocol] : udp
+[serviceName] : uucp  [portNumber] : 540  [Protocol] : tcp
+[serviceName] : uucp-path  [portNumber] : 117  [Protocol] : tcp
+[serviceName] : who  [portNumber] : 513  [Protocol] : udp
+[serviceName] : whoami  [portNumber] : 565  [Protocol] : tcp
+[serviceName] : whoami  [portNumber] : 565  [Protocol] : udp
+[serviceName] : wins  [portNumber] : 1512  [Protocol] : tcp
+[serviceName] : wins  [portNumber] : 1512  [Protocol] : udp
+[serviceName] : wlbs  [portNumber] : 2504  [Protocol] : udp
+[serviceName] : wlbs  [portNumber] : 2504  [Protocol] : tcp
+[serviceName] : ws-discovery  [portNumber] : 3702  [Protocol] : tcp
+[serviceName] : ws-discovery  [portNumber] : 3702  [Protocol] : udp
+[serviceName] : wsd  [portNumber] : 5358  [Protocol] : tcp
+[serviceName] : wsd  [portNumber] : 5357  [Protocol] : tcp
+[serviceName] : xbox  [portNumber] : 3074  [Protocol] : udp
