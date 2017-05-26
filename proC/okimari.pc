@@ -1,0 +1,176 @@
+/***************************************************************************/
+/*                                                                         */
+/*                       Pro*C????????W                                   */
+/*                                                                         */
+/*                                                                         */
+/* History-.                                                               */
+/*   2017/05/25 : Created by N.Miyazaki                                    */
+/***************************************************************************/
+/* ALL RIGHTS RESERVED. COPY RIGHT(C) 2017, EIL Co.,Ltd.                   */
+/***************************************************************************/
+/* Oracle??G???[?R?[?h???????? */
+EXEC SQL INCLUDE SQLCA;
+
+/* DB???????????? */
+#defile USERANDPASS "ohki/ryutu@ohkidb.world"
+
+int Logon;
+
+/*--------------------------------------------------------
+name   = LoginToOracle()
+func   = ?I???N???? login
+io     = none
+return = ??Status
+date   = 2017.05.25 Written by N.Miyazaki (SE-No.400)
+--------------------------------------------------------*/
+int      LoginToOracle()
+{
+EXEC SQL BEGIN DECLARE SECTION;
+  VARCHAR  UserAndPass[65];
+EXEC SQL END   DECLARE SECTION;
+
+  memset(UserAndPass.arr, 0, sizeof((char*)UserAndPass.arr));
+  strcpy((char*)UserAndPass.arr, USERANDPASS);
+  UserAndPass.len = strlen( (char*)UserAndPass.arr );
+
+  /* ???????[?v?????? */
+  EXEC SQL WHENEVER SQLERROR CONTINUE;
+  /* DB??? */
+  EXEC SQL CONNECT :UserAndPass;
+  if ( V_SQLCODE ) {
+
+    printf("Connect Error\n");
+    return( -1 );
+  }
+
+  Logon = 1;
+
+  printf("Oracle?? Login????????B\n");
+
+  return( 0 );
+}
+
+/*--------------------------------------------------------
+name   = LogoutFromOracle()
+func   = ?I???N?????? logout
+io     = RbFlag     : i- 0=COMMIT  1=ROLLBACK
+return = NORMAL     : normal
+         -2         : DB error
+date   = 2017.05.25 Written by N.Miyazaki (SE-No.400)
+--------------------------------------------------------*/
+int      LogoutFromOracle(int Extcd)
+{
+  if ( Logon == 0 ){
+    return( 0 );
+  }
+
+  /* ???[???o?b?N */
+  EXEC SQL ROLLBACK WORK RELEASE;
+  if ( V_SQLCODE ) {
+
+    printf("Disconnect Error\n");
+    return( -1 );
+  }
+
+  printf("Oracle???? Logout????????B\n");
+  Logon = 0;
+
+  return( 0 );
+}
+
+/*--------------------------------------------------------
+name   = ?I??????
+func   =
+io     = none
+return = 0
+date   = 2017.05.25 Written by N.Miyazaki (SE-No.400)
+---------------------------------------------------------*/
+int      Terminate(int extcd)
+{
+  LogoutFromOracle( extcd );
+
+  printf("--?I??\n");
+
+  return( 0 );
+}
+
+/*--------------------------------------------------------
+name   = MainProcedure()
+func   =
+io     = none
+return =
+date   = 2017.05.25 Written by N.Miyazaki (SE-No.400)
+---------------------------------------------------------*/
+int      MainProcedure( void )
+{
+/* ?z?X?g????? */
+EXEC SQL BEGIN DECLARE SECTION;
+  double   ojseq;
+  VARCHAR  ojname[61];
+EXEC SQL END   DECLARE SECTION;
+char     Cmd[256];
+int      ret;
+
+  /* ?J?[?\???? ??????ACD??????J?[?\???? */
+  EXEC SQL DECLARE CD CURSOR FOR
+    select ?c
+      from ?c
+     where ?c;
+  if ( V_SQLCODE ) {
+
+    printf("Declare Cursor Error\n");
+    return( -2 );
+  }
+
+  /* ?J?[?\???I?[?v?? */
+  EXEC SQL OPEN CD;
+  if ( V_SQLCODE ) {
+
+    printf("Open Cursor Error\n");
+    return( -2 );
+  }
+
+  do {
+    /* ?t?F?b?` */
+    EXEC SQL FETCH CD  INTO ?c;
+    if ( V_SQLCODE && (V_SQLCODE != NOTFOUND) ) {
+
+      printf("Fetch error\n");
+      /* ?J?[?\???N???[?Y(?G???[??I???????O??K???N???[?Y) */
+      EXEC SQL CLOSE CD;
+      return( -1 );
+    }
+    /* C????????????????????????NULL???t???? */
+    VarcharNullAdd( ojname );
+  } while( !V_SQLCODE );
+
+  /* ?J?[?\???N???[?Y */
+  EXEC SQL CLOSE CD;
+  if ( V_SQLCODE ) {
+
+    printf("Fetch error\n");
+    return( -1 );
+  }
+
+  return( 0 );
+}
+
+/*--------------------------------------------------------
+name   =
+func   =
+io     =
+return =
+date   = 2017.05.25 Written by N.Miyazaki (SE-No.400)
+---------------------------------------------------------*/
+int      main(int argc, char *argv[])
+{
+int      extcd = 0;
+
+  LoginToOracle();
+
+  while( ((extcd = MainProcedure()) >= 0) ) {
+  }
+
+  Terminate( extcd );
+  exit( extcd );
+}

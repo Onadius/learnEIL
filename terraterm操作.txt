@@ -1,0 +1,19 @@
+terraterm
+/home/ohki/kensyu/c/src/miyawaki
+
+$ make clobber
+今まで作ってきたmakeファイル関連全削除
+
+$ cp samplecording.pc obennkyo/
+ファイルコピー
+
+$ mv kadai1.pc samplecording.pc
+ファイル名変更
+
+$ rm -i compiling_error.txt
+ファイル削除
+
+#Linux(CentOS)での表示例
+
+$ echo $LANG
+サーバ側の文字コードの確認方法

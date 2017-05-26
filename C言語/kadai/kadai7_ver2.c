@@ -8,15 +8,16 @@ https://goo.gl/A7W4aP
 #include<stdio.h>
 #include<math.h>
 
-#define ynum 21
-#define xnum 72
+#define YNUM 21
+#define XNUM 72
 #define PI 3.1415926
 
-/*出力関数*/
-void plot(int y, int x, int (*g)[xnum]){
-  for ( y = 0 ; y < ynum ; y++ ){
 
-    for ( x = 0 ; x < xnum ; x++ ){
+/* -- 出力関数 -- */
+void plot(int y, int x, int (*g)[XNUM]){
+  for ( y = 0 ; y < YNUM ; y++ ){
+
+    for ( x = 0 ; x < XNUM ; x++ ){
 
       if ( *(g[y] + x) == 1 ){
         putchar('*');
@@ -30,29 +31,45 @@ void plot(int y, int x, int (*g)[xnum]){
 }
 
 
-int main(void) {
-  int    g[ynum][xnum]; /*[行 y][列 x]*/
-  int    y, x;
+/* -- 初期化関数 -- */
+void initialization(int y, int x, int g[][XNUM]){
 
+  for ( y = 0 ; y < YNUM ; y++ ) {
 
-  /*二次元配列内全て0に初期化*/
-  for ( y = 0 ; y < ynum ; y++ ) {
-
-      for ( x = 0 ; x < xnum ; x++ ) {
+      for ( x = 0 ; x < XNUM ; x++ ) {
         *(g[y] + x) = 0 ;
       }
   }
+}
 
-  /*プロットするマス(二次元配列)に1をマーク*/
-  for ( y = 0 ; y < ynum ; y++ ) {
 
-    for (x = 0 ; x < xnum ; x++) {
+/* -- マーク関数 -- */
+void mark_1(int y, int x, int g[][XNUM]) {
 
-      if (y == (int)((-10) * sin(PI * x / (int)(xnum/2)) + 10)){
+  for ( y = 0 ; y < YNUM ; y++ ) {
+
+    for (x = 0 ; x < XNUM ; x++) {
+
+      if (y == (int)((-10) * sin(PI * x / (int)(XNUM/2)) + 10)) {
         *(g[y] + x) = 1 ;
       }
     }
   }
+}
+
+
+
+/* -- main関数 -- */
+int main(void) {
+  int    g[YNUM][XNUM]; /*[行 y][列 x]*/
+  int    y, x;
+
+
+  /*二次元配列内全て0に初期化*/
+  initialization(y, x, g) ;
+
+  /*プロットするマス(二次元配列)に1をマーク*/
+  mark_1(y, x, g) ;
 
   /*出力処理*/
   plot(y, x, g);

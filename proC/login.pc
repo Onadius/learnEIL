@@ -1,0 +1,68 @@
+/*
+①夃@會Bぃ�店舗マスゃ\(AFM032)から企�E��ゃEッVド、�R�舗ゃEッVド�
+得意先�R�舗ゃEッVド、情�v式名私|、�X�所、電詃A畃F參L、配送コッVゃPゃEッV�	
+を抜き出してファめAッHぃH凃R力するプッ�め|ッDムを�X�成せよ�
+*/
+
+
+#include <stdio.h>
+#include <string.h>
+#include "kadai.h"
+
+/* DB掁E続文字列訃�定 */
+#define USERANDPASS "ohki/ryutu@yodadb.world"
+
+/* OracleゃBッDッVゃEッVド取り�Z�Vぃ\ */
+EXEC SQL INCLUDE SQLCA ;
+
+
+
+/* 夃@域�A�数 */
+int Logon ;
+
+/* 閁u敁|プロトタめAプ僇�v言 */
+int LoginToOracle() ;
+
+
+
+/* ------------ main閁u敁| ------------ */
+int main(void) {
+
+  int extcd = 0 ;
+
+  LoginToOracle() ;
+}
+
+
+
+/* ---------- oracleッ�め|めAッE閁u敁| ---------- */
+int LoginToOracle() {
+
+  EXEC SQl BEGIN DECLARE SECTION ;
+    VARCHAR UserAndPass[70] ;
+  EXEC SQL END DECLARE SECTION ;
+
+
+  memset(UserAndPass.arr, 0, sizeof((char*)UserAndPass.arr)) ; /* memsetぃbチBチuッFぃH指僇�バめAト数分の倁Aをセット */
+  strcpy((char*)UserAndPass.arr, USERANDPASS);
+  UserAndPass.len = strlen( (char*)UserAndPass.arr ); /*strlenぃb文僅�列strぃ�镃Lさを返す*/
+
+  /* 焁B限ルッVプ回遃\ */
+  EXEC SQL WHENEVER SQLERROR CONTINUE ;
+
+  /* DB掁E続 */
+  EXEC SQL CONNECT :UserAndPass ;
+
+
+  if ( V_SQLCODE ) {
+
+    printf("Connect Error dayo oniityann !\n") ;
+    return (-1) ;
+  }
+
+
+  Logon = 1 ;
+  printf("SUCCESS dayo onityann !!\n") ;
+
+  return (0) ;
+}
