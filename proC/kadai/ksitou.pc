@@ -1,0 +1,395 @@
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+
+EXEC SQL BEGIN DECLARE SECTION;
+varchar username[25];
+char icucd[8];
+char icuscd[4];
+char dynstmt[1024];
+varchar buf[8];
+
+typedef struct _cmaster{
+  char cucd[8];
+  char cuscd[4];
+  char cuspcd[9];
+  char spnm[43];
+  char spad1[43];
+  char spad2[43];
+  char sptel[15];
+  char exp[4];
+  struct _cmaster *next;
+  struct _cmaster *prev;
+}cmas;
+
+varchar buf1[8];
+varchar buf2[4];
+varchar buf3[9];
+varchar buf4[43];
+varchar buf5[43];
+varchar buf6[43];
+varchar buf7[15];
+varchar buf8[4];
+
+int judge;
+
+varchar ibuf1[8];
+varchar ibuf2[4];
+varchar ibuf3[9];
+varchar ibuf4[43];
+varchar ibuf5[43];
+varchar ibuf6[43];
+varchar ibuf7[15];
+varchar ibuf8[4];
+
+
+short cusp_ind;
+short spnm_ind;
+short spad1_ind;
+short spad2_ind;
+short spt_ind;
+short exp_ind;
+
+short buf_ind;
+
+int cflag;
+int tflag;
+
+EXEC SQL END DECLARE SECTION;
+
+EXEC SQL INCLUDE sqlca;
+
+
+/*エラー処理:参考書よりコピーペースト*/
+void sql_error(msg) char *msg;
+{
+char buf[500];
+int buflen, msglen;
+EXEC SQL WHENEVER SQLERROR CONTINUE;
+EXEC SQL ROLLBACK WORK RELEASE;
+buflen = sizeof (buf);
+sqlglm(buf, &buflen, &msglen);
+printf("%s\n", msg);
+printf("%*.s\n", msglen, buf);
+exit(1);
+}
+
+/*--------------------------------------------------------
+name   = init_list()
+func   = リストのダミー要素の初期化
+io     = cmas *list      : 初期化したいダミー要素
+return = NULL
+date   = 2015.5.8 Written by N.Mukosaka (SE-No.)
+--------------------------------------------------------*/
+void init_list(cmas *list)
+{
+  memset(list, 0, sizeof(cmas));
+
+  list->next = list;
+  list->prev = list;
+
+}
+
+/*--------------------------------------------------------
+name   = ins_list()
+func   = 双方向環状リストに要素を挿入
+io     = cmas *add       : 挿入する要素
+         cmas *p         : 挿入する場所の直前の要素
+return = NULL
+date   = 2015.5.8 Written by N.Mukosaka (SE-No.)
+--------------------------------------------------------*/
+void ins_list(cmas *add, cmas *p)
+{
+  add->next = p->next;
+  add->prev = p;
+  add->next->prev = add;
+  add->prev->next = add;
+}
+
+/*--------------------------------------------------------
+name   = add_list()
+func   = 入力文字列からリストにデータを格納
+io     = cmas *buf       :挿入するデータ
+         cmas *list      :挿入されるリスト
+return = NULL
+date   = 2015.5.12 Written by N.Mukosaka (SE-No.)
+--------------------------------------------------------*/
+add_list(cmas *buf, cmas *list)
+{
+cmas *p, *prev;
+
+  if (( p = (cmas *) malloc( sizeof( cmas ) ) ) == NULL ) {
+    printf("malloc error in add_list\n");
+    exit(EXIT_FAILURE);
+  }
+  memset(p, 0,   sizeof(cmas) );
+  memcpy(p, buf, sizeof(cmas));
+
+  prev = list->prev;
+  ins_list(p, prev);
+
+
+}
+
+/*--------------------------------------------------------
+name   = make_slist_sql()
+func   = データベースから双方向環状リストを作成
+io     = cmas *list       : 作成するリストの先頭要素
+return = NULL
+date   = 2015.5.12 Written by N.Mukosaka (SE-No.)
+--------------------------------------------------------*/
+void make_slist_sql(cmas *list)
+{
+int i;
+static char *stmt1 = "Select cucd, cuscd, cuspcd, spnm, spad1, spad2, sptel, exp FROM AFM032";
+static char *stmt2 = "Select cucd, cuscd, cuspcd, spnm, spad1, spad2, sptel, exp FROM AFM032 WHERE cucd = :cd";
+static char *stmt3 = "Select cucd, cuscd, cuspcd, spnm, spad1, spad2, sptel, exp FROM AFM032 WHERE cuscd = :cd";
+static char *stmt4 = "Select cucd, cuscd, cuspcd, spnm, spad1, spad2, sptel, exp FROM AFM032 WHERE cucd = :cd and cuscd = :cd2";
+  EXEC SQL WHENEVER SQLERROR do sql_error("Oracle error in make_slist_sql");
+
+  if(cflag > 0 && tflag > 0){
+    strcpy(dynstmt,stmt4);
+  }else if(cflag > 0){
+    strcpy(dynstmt,stmt2);
+  }else if(tflag > 0){
+    strcpy(dynstmt,stmt3);
+  }else{
+    strcpy(dynstmt,stmt1);
+  }
+
+  EXEC SQL PREPARE S FROM :dynstmt;
+  EXEC SQL DECLARE afm032_cu2 CURSOR FOR S;
+
+  if(cflag > 0 && tflag > 0){
+    EXEC SQL OPEN afm032_cu2 using :icucd, :icuscd;
+  }else if(cflag > 0){
+    EXEC SQL OPEN afm032_cu2 using :icucd;
+  }else if(tflag > 0){
+    EXEC SQL OPEN afm032_cu2 using :icuscd;
+  }else{
+    EXEC SQL OPEN afm032_cu2;
+  }
+
+  EXEC SQL WHENEVER NOT FOUND DO break;
+  for(;;){
+    cmas *newelm, *prev;
+
+    EXEC SQL FETCH afm032_cu2 INTO :buf1, :buf2, :buf3:cusp_ind, :buf4:spnm_ind, :buf5:spad1_ind, :buf6:spad2_ind, :buf7:spt_ind, :buf8:exp_ind;
+
+    if (( newelm = (cmas *) malloc( sizeof( cmas ) ) ) == NULL ) {
+      printf("malloc error in make_slist_sql\n");
+      exit(EXIT_FAILURE);
+    }
+    memset( newelm, 0 , sizeof(cmas) );
+
+    strncpy( newelm->cucd,   buf1.arr, buf1.len );
+    strncpy( newelm->cuscd,  buf2.arr, buf2.len );
+    strncpy( newelm->cuspcd, buf3.arr, buf3.len );
+    strncpy( newelm->spnm,   buf4.arr, buf4.len );
+    strncpy( newelm->spad1,  buf5.arr, buf5.len );
+    strncpy( newelm->spad2,  buf6.arr, buf6.len );
+    strncpy( newelm->sptel,  buf7.arr, buf7.len );
+    strncpy( newelm->exp,    buf8.arr, buf8.len );
+
+    add_list( newelm, list );
+  }
+
+  EXEC SQL CLOSE afm032_cu2;
+}
+
+/*--------------------------------------------------------
+name   = judge_plus()
+func   = 判定用変数の値をプラスする
+io     =
+return = NULL
+date   = 2015.5.15 Written by N.Mukosaka (SE-No.)
+--------------------------------------------------------*/
+void judge_plus(){
+  judge++;
+}
+
+/*--------------------------------------------------------
+name   = ins_sql()
+func   = データベースにデータをインサートする
+io     =
+return = NULL
+date   = 2015.5.15 Written by N.Mukosaka (SE-No.)
+--------------------------------------------------------*/
+void ins_sql(cmas *list){
+cmas *p;
+  EXEC SQL WHENEVER SQLERROR do sql_error("Oracle error in ins_sql");
+  for( p = list->next ;  p != list ; p = p->next ){
+     strcpy( ibuf1.arr, p->cucd);
+     ibuf1.len = strlen( ibuf1.arr );
+     strcpy( ibuf2.arr, p->cuscd);
+     ibuf2.len = strlen( ibuf2.arr );
+     strcpy( ibuf3.arr, p->cuspcd);
+     ibuf3.len = strlen( ibuf3.arr );
+     strcpy( ibuf4.arr, p->spnm);
+     ibuf4.len = strlen( ibuf4.arr );
+     strcpy( ibuf5.arr, p->spad1);
+     ibuf5.len = strlen( ibuf5.arr );
+     strcpy( ibuf6.arr, p->spad2);
+     ibuf6.len = strlen( ibuf6.arr );
+     strcpy( ibuf7.arr, p->sptel);
+     ibuf7.len = strlen( ibuf7.arr );
+     strcpy( ibuf8.arr, p->exp);
+     ibuf8.len = strlen( ibuf8.arr );
+
+     EXEC SQL WHENEVER NOT FOUND DO judge_plus();
+     EXEC SQL SELECT cucd INTO :buf:buf_ind FROM tmp_032_150512_2
+        where cucd = :ibuf1 and cuscd = :ibuf2;
+
+     if(judge == 1){
+       EXEC SQL INSERT INTO tmp_032_150512_2 (idat, cucd, cuscd, cuspcd, spnm, spad1, spad2, sptel, exp)
+                VALUES (TO_DATE(SYSDATE, 'YY/MM/DD HH24:MI:SS'), :ibuf1, :ibuf2, :ibuf3, :ibuf4, :ibuf5, :ibuf6, :ibuf7, :ibuf8);
+     }else if(judge == 0 ){
+       EXEC SQL UPDATE tmp_032_150512_2
+                SET idat = TO_DATE(SYSDATE, 'YY/MM/DD HH24:MI:SS'), cuspcd = :ibuf3, spnm = :ibuf4, spad1 = :ibuf5, spad2 = :ibuf6, sptel = :ibuf7, exp = :ibuf8
+                where cucd = :ibuf1 and cuscd = :ibuf2;
+     }
+     judge = 0;
+  }
+}
+
+/*--------------------------------------------------------
+name   = output_list()
+func   = リストをファイルに出力
+io     = cmas *list      : 出力したいリスト
+return = NULL
+date   = 2015.5.11 Written by N.Mukosaka (SE-No.)
+--------------------------------------------------------*/
+void output_list(cmas *list)
+{
+FILE *fpout;
+cmas *p;
+
+  if( ( fpout = fopen( "afm032_kadai3.txt" , "w" ) ) == NULL ){
+    printf("file open error in output_list\n");
+    exit(1);
+  }
+
+  for( p = list->next ;  p != list ; p = p->next ){
+    fprintf( fpout, "企業コード：%s 店舗コード：%s 得意先店舗コード：%s 正式名称：%s\n" , p->cucd,  p->cuscd, p->cuspcd, p->spnm );
+    fprintf( fpout, "住所：%s %s 電話番号：%s 配送コースコード：%s\n" ,                   p->spad1, p->spad2, p->sptel,  p->exp );
+    /*fprintf( fpout, "next:%d prev:%d\n" , p->next, p->prev );*/
+  }
+  fclose(fpout);
+}
+
+/*--------------------------------------------------------
+name   = output_selm()
+func   = リストから特定の要素をファイルに出力
+io     = cmas *list      : 出力したいリスト
+         char *w         : 出力したい要素
+return = NULL
+date   = 2015.5.12 Written by N.Mukosaka (SE-No.)
+--------------------------------------------------------*/
+void output_selm(cmas *list, char *w)
+{
+FILE *fpout;
+cmas *p;
+
+  if( ( fpout = fopen( "afm032_kadai2.txt" , "w" ) ) == NULL ){
+    printf("file open error in output_list\n");
+    exit(1);
+  }
+
+  for( p = list->next ;  p != list ; p = p->next ){
+    if( strcmp( p->cucd , w ) == 0 ){
+      fprintf( fpout, "企業コード：%s 店舗コード：%s 得意先店舗コード：%s 正式名称：%s\n" , p->cucd, p->cuscd , p->cuspcd, p->spnm );
+      fprintf( fpout, "住所：%s %s 電話番号：%s 配送コースコード：%s\n" , p->spad1, p->spad2, p->sptel, p->exp );
+      /*fprintf( fpout, "next:%d prev:%d\n" , p->next, p->prev );*/
+      }
+  }
+  fclose(fpout);
+}
+
+/*--------------------------------------------------------
+name   = free_list()
+func   = リストを初期化する
+io     = NULL
+return = NULL
+date   = 2015.5.8 Written by N.Mukosaka (SE-No.)
+--------------------------------------------------------*/
+void free_list(cmas *list)
+{
+cmas *p, *prev;
+
+  p = list->next;
+  prev = list;
+
+  while(  p != list ){
+    prev->next = p->next;
+    free(p);
+    p = prev->next;
+  }
+}
+
+/*--------------------------------------------------------
+name   = main()
+func   = データベースからリストに格納し、
+         テキストファイルやテーブルに出力する
+io     = NULL
+return = NULL
+date   = 2015.5.15 Written by N.Mukosaka (SE-No.)
+--------------------------------------------------------*/
+main(int argc, char*argv[]){
+cmas list;
+char *p;
+int i, insflag, eflag;
+  insflag = 0;
+  eflag = 0;
+  EXEC SQL WHENEVER SQLERROR do sql_error("Oracle error");
+
+  /*データベース接続*/
+  strcpy( username.arr, "ohki/ryutu@ohkidb.world");
+  username.len = strlen( username.arr );
+  EXEC SQL CONNECT :username;
+  printf( "\nConnected to YODA as user: %s\n" , username.arr );
+
+  /*引数処理*/
+  init_list(&list);
+
+  if(argc == 1){
+    make_slist_sql(&list);
+  }else{
+    for(i=0; i<argc; i++){
+      p=argv[i];
+      if(*p == '-'){
+        p++;
+        switch(*p){
+             case 'c':
+                      p++;
+                      cflag++;
+                      strcpy( icucd,  p);
+                      break;
+             case 't':
+                      p++;
+                      tflag++;
+                      strcpy( icuscd, p);
+                      break;
+             case 'i':
+                      insflag++;
+                      break;
+             default:
+                      eflag++;
+                      break;
+        }
+      }
+    }
+    make_slist_sql(&list);
+  }
+
+  if(eflag == 0){
+    if(insflag > 0){
+      ins_sql(&list);
+    }else{
+      output_list(&list);
+    }
+    free(&list);
+  }
+
+  EXEC SQL COMMIT WORK RELEASE;
+  exit(0);
+}

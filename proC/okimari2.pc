@@ -1,0 +1,289 @@
+/***************************************************************************/
+/*                                                                         */
+/*                       Pro*C�����܂��W                                   */
+/*                                                                         */
+/*                                                                         */
+/* History-.                                                               */
+/*   2017/05/25 : Created by N.Miyazaki                                    */
+/***************************************************************************/
+/* ALL RIGHTS RESERVED. COPY RIGHT(C) 2017, EIL Co.,Ltd.                   */
+/***************************************************************************/
+#include "kadai.h"
+
+/* DB�ڑ��������ݒ� */
+#define USERANDPASS "ohki/ryutu@ohkidb.world"
+
+/* Oracle�̃G���[�R�[�h�����荞�� */
+EXEC SQL INCLUDE SQLCA;
+
+int  Logon;
+int  giMode = 0;
+char gsCucd[7+1];
+char gsCuscd[3+1];
+
+/*--------------------------------------------------------
+name   = GetArgument()
+func   = �N����������
+io     = argc       : i-
+         argv       : i-
+return = NORMAL     : normal
+         FATALERROR : Usage
+date   = 2017.05.29 Written by N.Miyazaki (SE-No.400)
+--------------------------------------------------------*/
+int      GetArgument(int argc, char** argv)
+{
+int      i;
+char     wrk[24];
+
+  for ( i = 0; i < argc; i++ ) {
+    if ( (*(argv[i]) == '-') {
+      switch( toupper(*(argv[i] + 1)) ) {
+       case 'C' :
+        memset(wrk, 0, sizeof(wrk));
+        strcpy(wrk, (argv[i] + 2));
+        sprintf(gsCucd, "%s", wrk);
+        giMode = 1;
+        break;
+       case 'T' :
+        memset(wrk, 0, sizeof(wrk));
+        strcpy(wrk, (argv[i] + 2));
+        sprintf(gsCuscd, "%s", wrk);
+        giMode = 2;
+        break;
+       case 'I' :
+        giMode = 3;
+        break;
+       case 'D' :
+        giMode = 4;
+        break;
+       default  :
+        ;
+      }
+    }
+    else {
+      /* erro������ */;
+    }
+  }
+
+  return( 0 );
+
+}
+
+/*--------------------------------------------------------
+name   = LoginToOracle()
+func   = �I���N���� login
+io     = none
+return = ��Status
+date   = 2017.05.25 Written by N.Miyazaki (SE-No.400)
+--------------------------------------------------------*/
+int      LoginToOracle()
+{
+EXEC SQL BEGIN DECLARE SECTION;
+  VARCHAR  UserAndPass[65];
+EXEC SQL END   DECLARE SECTION;
+
+  memset(UserAndPass.arr, 0, sizeof((char*)UserAndPass.arr));
+  strcpy((char*)UserAndPass.arr, USERANDPASS);
+  UserAndPass.len = strlen( (char*)UserAndPass.arr );
+
+  /* �������[�v������ */
+  EXEC SQL WHENEVER SQLERROR CONTINUE;
+  /* DB�ڑ� */
+  EXEC SQL CONNECT :UserAndPass;
+  if ( V_SQLCODE ) {
+
+    printf("Connect Error\n");
+    return( -1 );
+  }
+
+  Logon = 1;
+
+  printf("Oracle�� Login���܂����B\n");
+
+  return( 0 );
+}
+
+/*--------------------------------------------------------
+name   = LogoutFromOracle()
+func   = �I���N������ logout
+io     = RbFlag     : i- 0=COMMIT  1=ROLLBACK
+return = NORMAL     : normal
+         -2         : DB error
+date   = 2017.05.25 Written by N.Miyazaki (SE-No.400)
+--------------------------------------------------------*/
+int      LogoutFromOracle(int Extcd)
+{
+  if ( Logon == 0 ){
+    return( 0 );
+  }
+
+  /* ���[���o�b�N */
+  EXEC SQL ROLLBACK WORK RELEASE;
+  if ( V_SQLCODE ) {
+
+    printf("Disconnect Error\n");
+    return( -1 );
+  }
+
+  printf("Oracle���� Logout���܂����B\n");
+  Logon = 0;
+
+  return( 0 );
+}
+
+/*--------------------------------------------------------
+name   = �I������
+func   =
+io     = none
+return = 0
+date   = 2017.05.25 Written by N.Miyazaki (SE-No.400)
+---------------------------------------------------------*/
+int      Terminate(int extcd)
+{
+  LogoutFromOracle( extcd );
+
+  printf("--�I��\n");
+
+  return( 0 );
+}
+
+/*--------------------------------------------------------
+name   = MainProcedure()
+func   =
+io     = none
+return =
+date   = 2017.05.25 Written by N.Miyazaki (SE-No.400)
+---------------------------------------------------------*/
+int      MainProcedure( void )
+{
+/* �z�X�g�ϐ��錾 */
+EXEC SQL BEGIN DECLARE SECTION;
+  double   ojseq;
+  VARCHAR  ojname[61];
+  VARCHAR  sqlstmt[2048+1];
+EXEC SQL END   DECLARE SECTION;
+
+char     Cmd[256];
+char     wrk[256];
+int      ret;
+
+  memset(wrk, 0, sizeof(wrk));
+  if (giMode == 2 || giMode == 3 || giMode == 4) {
+    printf(wrk ," and a.cuscd = '%s'", gsCuscd);
+  }
+
+  if (giMode == 1 || giMode == 2) {
+    memset((char*)sqlstmt.arr, 0, sizeof((char*)sqlstmt.arr));
+    sprintf((char*)sqlstmt.arr,"\
+select CUCD, CUSCD, NVL(CUSPCD,' '), NVL(SPNM,' '), NVL(SPAD1, ' '), NVL(SPTEL, ' '), NVL(EXP, ' ')\
+  from afm032 a\
+ where a.cucd='%s' %s", gsCucd, wrk);
+
+    sqlstmt.len = strlen( (char*)sqlstmt.arr );
+    sqlstmt.arr[sqlstmt.len] = '\0';
+
+    EXEC SQL PREPARE SD FROM :sqlstmt;
+    if ( V_SQLCODE ) {
+      printf("PREPARE Cursor Error\n");
+      return( -2 );
+    }
+
+    /* �J�[�\���錾 ���̏ꍇ�ACD�Ƃ����J�[�\���� */
+    EXEC SQL DECLARE CD CURSOR FOR SD
+    if ( V_SQLCODE ) {
+
+      printf("Declare Cursor Error\n");
+      return( -2 );
+    }
+
+    /* �J�[�\���I�[�v�� */
+    EXEC SQL OPEN CD;
+    if ( V_SQLCODE ) {
+
+      printf("Open Cursor Error\n");
+      return( -2 );
+    }
+
+    do {
+      /* �t�F�b�` */
+      EXEC SQL FETCH CD  INTO �c;
+      if ( V_SQLCODE && (V_SQLCODE != NOTFOUND) ) {
+
+        printf("Fetch error\n");
+        /* �J�[�\���N���[�Y(�G���[�ŏI�������O�ɕK���N���[�Y) */
+        EXEC SQL CLOSE CD;
+        return( -1 );
+      }
+      /* C�ŕ������Ƃ��Ĉ����ۂɂ͖�����NULL���t���� */
+      VarcharNullAdd( ojname );
+    } while( !V_SQLCODE );
+
+    /* �J�[�\���N���[�Y */
+    EXEC SQL CLOSE CD;
+    if ( V_SQLCODE ) {
+
+      printf("Fetch error\n");
+      return( -1 );
+    }
+  }
+  else if (giMode == 3) { /* �X�V���� */
+    �E�E�E�E
+    ;
+    if ( V_SQLCODE ) {
+        printf("Rollback\n");
+      EXEC SQL ROLLBACK WORK RELEASE;
+    }
+    else {
+        printf("Commit\n");
+      EXEC SQL COMMIT   WORK RELEASE;
+    }
+    if ( V_SQLCODE ) {
+        printf("Commit Error\n");
+      return( DBERROR );
+    }
+  }
+  else if (giMode == 4) { /* �폜���� */
+    �E�E�E�E
+    ;
+    if ( V_SQLCODE ) {
+        printf("Rollback\n");
+      EXEC SQL ROLLBACK WORK RELEASE;
+    }
+    else {
+        printf("Commit\n");
+      EXEC SQL COMMIT   WORK RELEASE;
+    }
+    if ( V_SQLCODE ) {
+        printf("Commit Error\n");
+      return( DBERROR );
+    }
+  }
+
+  return( 0 );
+}
+
+/*--------------------------------------------------------
+name   =
+func   =
+io     = argc       : i- �N�������̐�
+         argv       : i- �N������������
+return =
+date   = 2017.05.25 Written by N.Miyazaki (SE-No.400)
+---------------------------------------------------------*/
+int      main(int argc, char *argv[])
+{
+int      extcd = 0;
+
+  /* Updated by N.Miyazaki(SE-No.400) at 2017.05.29 */
+  if ( GetArgument(argc, argv) ) {
+    exit( extcd );
+  }
+
+  LoginToOracle();
+
+  while( ((extcd = MainProcedure()) >= 0) ) {
+  }
+
+  Terminate( extcd );
+  exit( extcd );
+}
