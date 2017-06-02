@@ -1,0 +1,504 @@
+/*****************************************************************************/
+/* spkadai.pc :                                                               */
+/*                                                                           */
+/* Notes-.        在庫報告ﾃﾞｰﾀ取込Prog                                       */
+/*    Usage : miku user/pass[@xxx] -f<file>                                */
+/*                                                                           */
+/*    EXIT-> 0 : 正常 (ERRなし)                                              */
+/*           1 : Fatal Error                                                 */
+/*           2 : DB Error                                                    */
+/*           5 : Usage                                                       */
+/*                                                                           */
+/* History-.              2001/06/14   :   Created by T.Shirasaki(SE-No.229) */
+/*                                                                           */
+/*****************************************************************************/
+#include "af033k.h"
+
+/* using ERROR CORD */
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+  VARCHAR  Dats[15];
+  VARCHAR  IDat[15];
+
+  /* For INSERT */
+  double   Obat;
+  VARCHAR  rcvdst[4];
+  VARCHAR  custcd[13];
+  VARCHAR  cencd[7];
+  VARCHAR  vjan[13+1];
+  VARCHAR  ojan[14];
+  VARCHAR  cugdcd[16];
+  int      cno;
+  short    ind_cno;
+  int      pno;
+  short    ind_pno;
+  int      pno9;
+  short    ind_pno9;
+  int      jpno;
+  short    ind_jpno;
+  int      zpno;
+  short    ind_zpno;
+  int      npno;
+  short    ind_npno;
+EXEC SQL END   DECLARE SECTION;
+
+static char Inf1[4001];
+static char Inf2[512];
+SYS  sys;
+
+
+
+/*-----------------------------------------------------------------------------
+name   = Initiate()
+func   = 初期化処理
+io     = argc         :  i  int
+         argv         :  i  char**
+return = 次ｽﾃｰﾀｽ
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      Initiate(int argc, char* argv[])
+{
+int      i;
+
+  InitLog(LOG_NAME, APP_NAME, DEF_LOGSIZE);
+  SetLogHead(0);
+  SetLogBody(LOG_DSP, 0, "_/_/_/ %s(%s) 起動", APP_JNAME, APP_NAME);
+
+  ClearSys();
+  InitDataQue( &(sys.Data) );
+  SetSysInterval( 60 );
+  SetSysLogin( 0 );
+  SetSysLock( 0 );
+  SetSysExitCode( EXT_NORM );
+  sys.Mode = MODE_RDTXT;
+
+  if ( GetArgument(argc, argv) ) {
+    SetSysExitCode( EXT_USAGE );
+
+    /* func: ? */
+    PrintUsage();
+    return( STS_ERR );
+  }
+
+  return( STS_LOGIN );
+}
+
+
+/*-----------------------------------------------------------------------------
+name   = GetArgument()
+func   = 初期化処理
+io     =
+return = 0            :  normal
+         -1           :  abnormal
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      GetArgument(int argc, char* argv[])
+{
+int      i, Len;
+char     BatStr[11];
+
+  if ( argc < 2 ) {
+    SetLogHead(0);
+    SetLogBody(LOG_DSP, 0, "引数が足りません");
+    return( -1 );
+  }
+
+  for ( i = 0; i < argc; i++ ) {
+    if ( (*(argv[i]) == '-') || (*(argv[i]) == '/') ) {
+      switch( toupper(*(argv[i] + 1)) ) {
+
+       case 'F' :  /* ﾌｧｲﾙ名指定 */
+        if ( strlen(argv[i]) > 2 ) {
+          Len = strlen(argv[i]) - 2;
+
+          /* sys構造体のメンバFileNameに起動引数-fからファイル名を格納 */
+          SetSysFileName(argv[i] + 2, Len);
+
+          if ( SetDftype(sys.Dftype, sys.FileName) ) {
+            return( 1 );
+          }
+        }
+        break;
+       default  :
+        ;
+      }
+    }
+    else {
+      SetSysUserPass( argv[i] );
+    }
+  }
+
+  memset(Inf2, 0, 512);
+  sprintf(Inf2, "af033k %s -f%s", GetSysUserPass(), GetSysFileName());
+
+  if ( !strlen(GetSysUserPass()) || !strlen(GetSysFileName()) ) {
+    return( FATALERROR );
+  }
+
+  return( NORMAL );
+}
+
+
+/*-----------------------------------------------------------------------------
+name   = PrintUsage()
+func   =
+io     =
+return =
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+
+-----------------------------------------------------------------------------*/
+void     PrintUsage()
+{
+char PID[9], pid[9];
+char *p;
+int  i;
+
+  for(strcpy(PID,APP_NAME), i=0;  i < strlen(PID); pid[i]=tolower(PID[i]),i++ );
+  SetLogHead(0);
+  SetLogBody(LOG_DSP, 0, "<usage> %s user/pass[@xxx] -f<FILENAME>", pid );
+  return;
+}
+
+
+/*-----------------------------------------------------------------------------
+name   = WaitAndRollback()
+func   = login再試行待ち
+io     =
+return = 次ｽﾃｰﾀｽ
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      WaitAndRollback()
+{
+  SetAFS73("再起動中", "", sys.FileName);
+
+  FreeDataQue( &(sys.Data) ); /* func:ﾘｽﾄの領域を解放 */
+  DExclusive(); /* func:排他解除 */
+
+  if ( GetSysLogin() ) {
+    SetSysLogin( 0 );
+    EXEC SQL ROLLBACK WORK RELEASE;
+  }
+  SetLogHead(0);
+  SetLogBody(LOG_DSP, 0, "おやすみ....(%d秒)", GetSysInterval());
+  Ssleep( GetSysInterval() );
+
+  return( STS_LOGIN );
+}
+
+
+/*-----------------------------------------------------------------------------
+name   = FreeDataQue()
+func   = ﾘｽﾄの領域を解放
+io     =
+return =
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      FreeDataQue(TAB_DATA* Prim)
+{
+TAB_DATA *DeleteElem;
+
+  for ( DeleteElem = Prim->Next; DeleteElem != Prim; DeleteElem = Prim->Next ) {
+    DeleteDataQue( DeleteElem );
+  }
+
+  return( 0 );
+}
+
+
+/*--------------------------------------------------------
+name   = 排他解除
+func   =
+io     =
+return = 次ｽﾃｰﾀｽ
+date   = 2001/06/14   Written by K.Sasaki(SE-151)
+---------------------------------------------------------*/
+int     DExclusive(void)
+{
+EXEC SQL BEGIN DECLARE SECTION;
+  int      Status;
+EXEC SQL END   DECLARE SECTION;
+
+  EXEC SQL EXECUTE
+    BEGIN
+      :Status := dbms_lock.release( 26 );
+    END;
+  END-EXEC;
+
+  SetSysLock( 0 );
+
+  return( STS_END );
+}
+
+
+/*-----------------------------------------------------------------------------
+name   = LoginToOracle()
+func   =
+io     =
+return = 次ｽﾃｰﾀｽ
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+
+memo
+SetSysStatus() --> sysという構造体のstatusというメンバに引数を代入している
+GetSysUserPass()
+-----------------------------------------------------------------------------*/
+int      LoginToOracle()
+{
+EXEC SQL BEGIN DECLARE SECTION;
+  VARCHAR usr_pwd[80];
+  VARCHAR sdday[8];
+EXEC SQL END   DECLARE SECTION;
+
+  VarcharCpy(usr_pwd, GetSysUserPass(), strlen(GetSysUserPass()));
+
+  EXEC SQL WHENEVER SQLERROR CONTINUE;
+  EXEC SQL CONNECT :usr_pwd ;
+  if ( V_SQLCODE < 0 ) {
+    SetLogHead(V_SQLCODE);
+    SetLogBody(LOG_DSP, 0,
+               "ORACLEへのLoginに失敗しました。(%s)", GetSysUserPass());
+    SetSysLogin( 0 );
+    return( STS_WAIT );
+  }
+  SetLogHead(0);
+  SetLogBody(LOG_DSP, 0, "ORACLEへLoginしました。(%s)", GetSysUserPass());
+  SetSysLogin( 1 );
+
+  EXEC SQL
+    SELECT TO_CHAR(SDDAY,'YYYYMMDD')
+      INTO :sdday
+      FROM AXM99
+     WHERE ID='1';
+  if ( V_SQLCODE ) {
+    SetLogHead(V_SQLCODE);
+    SetLogBody(LOG_DSP, 0, "制御ﾃﾞｰﾀ取得失敗", GetSysUserPass());
+    return( STS_WAIT );
+  }
+
+  if ( sys.OBat == (double)0.0 ) {
+    if ( GetOBat(&(sys.OBat)) ) {
+      SetAFS73("ﾃﾞｰﾀ取込ｴﾗｰ", "ﾊﾞｯﾁ番号取得に失敗しました", sys.FileName);
+      return( STS_WAIT );
+    }
+    SetLogHead(0);
+    SetLogBody(1, 0, "OBAT=%.0f", sys.OBat);
+  }
+
+  VarcharToStr(sys.Sdday, sdday);
+  SetLogHead( 0 );
+  SetLogBody(0, 0, "業務日付[%s]", sys.Sdday);
+
+  SetAFS73("開始", "", sys.FileName);
+
+  return( STS_EXCL );
+}
+
+
+
+/*-----------------------------------------------------------------------------
+name   = ReadData()
+func   =
+io     =
+return = 次ｽﾃｰﾀｽ
+date   = 2001/06/14   Written by K.Sasaki(SE-151)
+-----------------------------------------------------------------------------*/
+int      ReadData()
+{
+int      RetValue = STS_CHECK;
+int      ret;
+char     Message[256];
+
+  SetAFS73("ﾃﾞｰﾀ読込中", "", sys.FileName);
+
+  if ( sys.Mode & MODE_RDTXT ) {
+    switch( (ret=GetDataFromText(sys.FileName, &(sys.Data))) ) {
+     case -9 :  /* ﾌｧｲﾙなし */
+      RetValue = STS_DEXCL;
+      sprintf(Message,"ﾃﾞｰﾀﾌｧｲﾙがありません　(在庫報告)　[%s]\r\n<%s>", sys.Dftype, sys.FileName);
+      SetSysExitCode( EXT_FERR );
+      SetAFS73("ﾃﾞｰﾀ読込不可", "ﾃﾞｰﾀﾌｧｲﾙがありません", sys.FileName);
+      break;
+     case -2 :  /* その他   */
+      RetValue = STS_DEXCL;
+      sprintf(Message,"ﾃﾞｰﾀﾌｧｲﾙの読込に失敗しました　(在庫報告)　[%s]\r\n<%s>", sys.Dftype, sys.FileName);
+      SetSysExitCode( EXT_FERR );
+      SetAFS73("ﾃﾞｰﾀ読込ｴﾗｰ", "ﾃﾞｰﾀﾌｧｲﾙの読込に失敗しました", sys.FileName);
+      break;
+     case -1 :  /* ｻｲｽﾞ不正 */
+      RetValue = STS_DEXCL;
+      sprintf(Message,"ﾌｫｰﾏｯﾄが不正です　(在庫報告)　[%s]\r\n<%s>", sys.Dftype, sys.FileName);
+      SetSysExitCode( EXT_FERR );
+      SetAFS73("ﾃﾞｰﾀ読込ｴﾗｰ", "ﾌｫｰﾏｯﾄが不正です", sys.FileName);
+      break;
+     case  0 :  /* ﾃﾞｰﾀ 0件 */
+      RetValue = STS_DEXCL;
+      SetSysExitCode( EXT_NODAT );
+      break;
+     default :  /* 正常 */
+      SetAFS73("ﾃﾞｰﾀ読込終了", "", sys.FileName);
+      RetValue = STS_INSERT;
+    }
+  }
+  else { /* workより取込み */
+    ;
+  }
+  if( ret < 0 ){
+    ConsoleTimerMessage(Message, 0, 4);
+  }
+  return( RetValue );
+}
+
+
+
+/*-----------------------------------------------------------------------------
+name   = Terminate()
+func   = 終了処理
+io     =
+return = 0            :  normal
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      Terminate()
+{
+char     Message[256];
+char     HostName[20];
+int      Prio = 2;
+
+  EXEC SQL WHENEVER SQLERROR CONTINUE;
+
+  if ( GetSysLogin() ) {
+    memset(Message, 0, sizeof(Message));
+    switch( GetSysExitCode() ) {
+     case EXT_NORM  :
+#ifndef __DEBUG__
+      BackupFile();
+#endif
+      SetAFS73("正常終了", "", sys.FileName);
+      sprintf(Message, "%s[%s:%s様]　%ld件正常終了", APP_JNAME, sys.Dftype, sys.Cunm, sys.Count);
+      SetOnlineMon(sys.UserPass, sys.Dtcls, sys.Dftype, sys.FileName, 0, sys.Count);
+      break;
+
+     case EXT_NODAT :
+      BackupFile();
+      SetAFS73("○終了○", "ﾃﾞｰﾀがありません", sys.FileName);
+      sprintf(Message,
+        "%s[%s:%s]　終了\nデータがありません", APP_JNAME, sys.Dftype, sys.Cunm);
+      Prio = 3;
+      SetOnlineMon(sys.UserPass, sys.Dtcls, sys.Dftype, sys.FileName, 1, sys.Count);
+      break;
+
+     case EXT_USAGE :
+     case EXT_FERR  :
+     case EXT_DBERR :
+     default        :
+      sprintf(Message,
+        "◇◆%s[%s:%s]に失敗しました。◆◇\n◇◆　　再実行して下さい。　　◆◇", APP_JNAME, sys.Dftype, sys.Cunm);
+      Prio = 4;
+      SetOnlineMon(sys.UserPass, sys.Dtcls, sys.Dftype, sys.FileName, 1, sys.Count);
+    }
+    ResponseTerminateMessage(Message, "CNSL", 0, Prio);
+
+    EXEC SQL ROLLBACK WORK RELEASE;
+  }
+
+  /* ﾘｽﾄ領域解放 */
+  FreeDataQue( &(sys.Data) );
+
+  return( NORMAL );
+}
+
+
+/*--------------------------------------------------------
+name   = BackupFile()
+func   = バックアップ
+io     = local       : i- local file name
+         remote      : i- remote file name
+return = 0           : normal
+         -1          : abnormal
+date   = 2002/05/21  Written by T.Shirasaki(SE-No.229)
+---------------------------------------------------------*/
+int      BackupFile( void )
+{
+struct stat   buf;
+int      i;
+char     BaseName[64], BkupFile[256], Command[256];
+
+  strcpy(BaseName, GetBaseName(sys.FileName));
+
+  memset(BkupFile, 0, sizeof(BkupFile));
+  strcpy(BkupFile, "/ryutu/online/rback/");
+  strcat(BkupFile, BaseName);
+  if ( EM_MoveFile(sys.FileName, BkupFile) ) {
+    SetLogHead( 0 );
+    SetLogBody(1, 0, "Backup Error[%s->%s]", sys.FileName, BkupFile);
+    return( -1 );
+  }
+
+  SetLogHead( 0 );
+  SetLogBody(1, 0, "Backup[%s->%s]", sys.FileName, BkupFile);
+
+  return( 0 );
+}
+
+
+/*-----------------------------------------------------------------------------
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+
+・status関連の変数はaf033k.h内で定義
+・関数名にsysついていたらaf033.hのsys構造体参照している
+・
+
+-----------------------------------------------------------------------------*/
+int      main(argc, argv)
+int      argc;
+char    *argv[];
+{
+
+  /* ---------
+   SetSysStatus() --> sysという構造体のstatusというメンバに引数を代入している
+   Initiate() --> func:初期化関数。その後GetArgument()で起動引数処理
+   --------- */
+  SetSysStatus( Initiate(argc, argv) );
+
+  while( (GetSysStatus() != STS_ERR) && (GetSysStatus() != STS_END) ) {
+    switch( GetSysStatus() ) {
+
+     case STS_WAIT   : /* login再試行待ち関数 */
+      SetSysStatus( WaitAndRollback() );
+      break;
+
+     case STS_LOGIN  : /* oracle login 関数 */
+      SetSysStatus( LoginToOracle() );
+      break;
+
+
+      /* -- 二重走行チェック処理
+     case STS_EXCL   :
+      SetSysStatus( Exclusive() );
+      break;
+     */
+
+
+     case STS_READ   : /* ここがデータ読み込み処理 */
+      SetSysStatus( ReadData() );
+      break;
+
+    /*
+     case STS_INSERT :
+      SetSysStatus( InsertData(&(sys.Data)) );
+      break;
+
+
+     case STS_DEXCL  :
+      SetSysStatus( DExclusive() );
+      break;
+    */
+     default     :
+      ;
+    }
+  }
+
+  Terminate();
+  SetLogHead(0);
+  SetLogBody(LOG_DSP, 0, "_/_/_/ %s 終了", APP_JNAME);
+  exit( GetSysExitCode() );
+}
