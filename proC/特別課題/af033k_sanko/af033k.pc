@@ -1,0 +1,1271 @@
+/*****************************************************************************/
+/* af033k.pc :                                                               */
+/*                                                                           */
+/* Notes-.        在庫報告ﾃﾞｰﾀ取込Prog                                       */
+/*    Usage : af033k user/pass[@xxx] -f<file>                                */
+/*                                                                           */
+/*    EXIT-> 0 : 正常 (ERRなし)                                              */
+/*           1 : Fatal Error                                                 */
+/*           2 : DB Error                                                    */
+/*           5 : Usage                                                       */
+/*                                                                           */
+/* History-.              2001/06/14   :   Created by T.Shirasaki(SE-No.229) */
+/*                                                                           */
+/*****************************************************************************/
+#include "af033k.h"
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+  VARCHAR  Dats[15];
+  VARCHAR  IDat[15];
+  /* 以下insert用 */
+  double   Obat;
+  VARCHAR  rcvdst[4];
+  VARCHAR  custcd[13];
+  VARCHAR  cencd[7];
+  VARCHAR  vjan[13+1];
+  VARCHAR  ojan[14];
+  VARCHAR  cugdcd[16];
+  int      cno;
+  short    ind_cno;
+  int      pno;
+  short    ind_pno;
+  int      pno9;
+  short    ind_pno9;
+  int      jpno;
+  short    ind_jpno;
+  int      zpno;
+  short    ind_zpno;
+  int      npno;
+  short    ind_npno;
+EXEC SQL END   DECLARE SECTION;
+
+static char Inf1[4001];
+static char Inf2[512];
+SYS  sys;
+
+/*-----------------------------------------------------------------------------
+name   = PrintUsage()
+func   =
+io     =
+return =
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+void     PrintUsage()
+{
+char PID[9], pid[9];
+char *p;
+int  i;
+
+  for(strcpy(PID,APP_NAME), i=0;  i < strlen(PID); pid[i]=tolower(PID[i]),i++ );
+  SetLogHead(0);
+  SetLogBody(LOG_DSP, 0, "<usage> %s user/pass[@xxx] -f<FILENAME>", pid );
+  return;
+}
+
+/*****   リスト関連   *****/
+/*-----------------------------------------------------------------------------
+name   = InitDataQue()
+func   =
+io     =
+return =
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      InitDataQue(TAB_DATA* Prim)
+{
+  memset(Prim, 0, sizeof(TAB_DATA));
+
+  Prim->Prev = Prim;
+  Prim->Next = Prim;
+
+  return( 0 );
+}
+
+/*-----------------------------------------------------------------------------
+name   = AddDataQue()
+func   =
+io     =
+return =
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      AddDataQue(TAB_DATA* Prim, TAB_DATA* AddElem)
+{
+TAB_DATA *NewElem;
+TAB_DATA *PrevElem;
+
+  if ( (NewElem = (TAB_DATA*)malloc(sizeof(TAB_DATA))) == (TAB_DATA*)NULL ) {
+    return( -1 );
+  }
+
+  memset(NewElem, 0,       sizeof(TAB_DATA));
+  memcpy(NewElem, AddElem, sizeof(TAB_DATA));
+
+  /* 連結 */
+  PrevElem       = Prim->Prev;
+  NewElem->Next  = Prim;
+  NewElem->Prev  = PrevElem;
+  PrevElem->Next = NewElem;
+  Prim->Prev     = NewElem;
+
+  return( 0 );
+}
+
+/*-----------------------------------------------------------------------------
+name   = DeleteDataQue()
+func   = ﾘｽﾄの領域を解放
+io     =
+return =
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      DeleteDataQue(TAB_DATA* DeleteElem)
+{
+TAB_DATA *PrevElem;
+TAB_DATA *NextElem;
+
+  PrevElem = DeleteElem->Prev;
+  NextElem = DeleteElem->Next;
+
+  PrevElem->Next = NextElem;
+  NextElem->Prev = PrevElem;
+
+  free( DeleteElem );
+
+  return( 0 );
+}
+
+/*-----------------------------------------------------------------------------
+name   = FreeDataQue()
+func   = ﾘｽﾄの領域を解放
+io     =
+return =
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      FreeDataQue(TAB_DATA* Prim)
+{
+TAB_DATA *DeleteElem;
+
+  for ( DeleteElem = Prim->Next; DeleteElem != Prim; DeleteElem = Prim->Next ) {
+    DeleteDataQue( DeleteElem );
+  }
+
+  return( 0 );
+}
+
+/*--------------------------------------------------------
+name   = LinkDataQue()
+func   = TAB_DATA Que 連結
+io     =
+return = 0          : normal
+date   = 2002.06.29 Written by T.Shirasaki (SE-No.229)
+--------------------------------------------------------*/
+void     LinkDataQue(TAB_DATA* NextElem, TAB_DATA* LinkElem)
+{
+TAB_DATA *PrevElem;
+
+  PrevElem       = NextElem->Prev;
+  LinkElem->Prev = PrevElem;
+  LinkElem->Next = NextElem;
+  PrevElem->Next = LinkElem;
+  NextElem->Prev = LinkElem;
+
+  return;
+}
+
+/*--------------------------------------------------------
+name   = UnlinkDataQue()
+func   = TAB_DATA Que 連結
+io     =
+return = 0          : normal
+date   = 2002.06.29 Written by T.Shirasaki (SE-No.229)
+--------------------------------------------------------*/
+void     UnlinkDataQue(TAB_DATA* UnlinkElem)
+{
+TAB_DATA *PrevElem;
+TAB_DATA *NextElem;
+
+  PrevElem       = UnlinkElem->Prev;
+  NextElem       = UnlinkElem->Next;
+  PrevElem->Next = NextElem;
+  NextElem->Prev = PrevElem;
+
+  return;
+}
+
+/*--------------------------------------------------------
+name   = ReplaceDataQue()
+func   = TAB_DATA Que 入替
+io     = BElem      : i-
+         SElem      : i-
+return = 0          : normal
+         -1         : abnormal(malloc error)
+date   = 2002.07.01 Written by T.Shirasaki (SE-No.229)
+--------------------------------------------------------*/
+void     ReplaceDataQue(TAB_DATA* BElem, TAB_DATA* SElem)
+{
+TAB_DATA *Prev;
+TAB_DATA *Next;
+
+  Prev = BElem->Prev;
+  Next = SElem->Next;
+
+  UnlinkDataQue( BElem );
+  UnlinkDataQue( SElem );
+
+  LinkDataQue(Prev->Next, SElem);
+  LinkDataQue(Next,       BElem);
+
+  return;
+}
+/*****   リスト関連   *****/
+
+/*-----------------------------------------------------------------------------
+name   = SetDBLog
+func   = AFS73に記録
+io     = Usr_Pwd      : i- DB接続文字列 [usr/pass@dbname 形式であること]
+         pid          : i- ﾌﾟﾛｸﾞﾗﾑID
+         pnm          : i- ﾌﾟﾛｸﾞﾗﾑ名
+         dats         : io 処理開始時刻 (指定なしなら 現在時刻をｾｯﾄ)
+         inf1         : i-
+         inf2         : i-
+         OBat         : i- 処理ﾊﾞｯﾁNo.
+return = 0            : normal
+         <>0          : DB error (ORACLE Error Code)
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+static int  SetDBLog(char* Usr_Pwd, char* pid, char* pnm, char* inf1, char* inf2,
+                     double OBat, int Count, char* Vend, char* Cucd, char* Dat, int idx)
+{
+EXEC SQL BEGIN DECLARE SECTION;
+  VARCHAR  ComUser[64];
+  VARCHAR  DbName[32];
+  VARCHAR  WSID[6];
+  VARCHAR  PID[9];
+  VARCHAR  PNM[25];
+  VARCHAR  INF1[512];
+  VARCHAR  INF2[512];
+  double   OBAT;
+  long     N1;
+  VARCHAR  C1[6];
+  VARCHAR  C2[8];
+  VARCHAR  D1[9];
+  double   Idx;
+EXEC SQL END   DECLARE SECTION;
+char     wsid[16];
+
+  EXEC SQL DECLARE LogDB DATABASE;
+
+  EXEC SQL WHENEVER SQLERROR CONTINUE;
+
+  SeparateDbName(Usr_Pwd, (char *)ComUser.arr, (char *)DbName.arr);
+  ComUser.len = strlen((char *)ComUser.arr);
+  DbName.len  = strlen((char *)DbName.arr);
+
+  EXEC SQL CONNECT :ComUser AT LogDB USING :DbName;
+  if ( V_SQLCODE ) {
+    return( V_SQLCODE );
+  }
+
+  memset(wsid, 0, sizeof(wsid));
+#ifdef __USE_WSID__
+  GetHostName( wsid );
+#else
+  strcpy(wsid, "ONLNE");
+#endif
+  OBAT = OBat;
+  VarcharCpy(WSID, wsid, strlen(wsid));
+  VarcharCpy(PID,  pid,  strlen(pid) );
+  VarcharCpy(PNM,  pnm,  strlen(pnm) );
+  VarcharCpy(INF1, inf1, strlen(inf1));
+  VarcharCpy(INF2, inf2, strlen(inf2));
+  N1   = Count;
+  VarcharCpy(C1,   Vend, strlen(Vend));
+  VarcharCpy(C2,   Cucd, strlen(Cucd));
+  VarcharCpy(D1,   Dat,  strlen(Dat) );
+
+  EXEC SQL AT LogDB
+    UPDATE AFS73 SET DATT=SYSDATE, BAT=:OBAT,  N1=:N1,
+                     INF1=:INF1,   INF2=:INF2,
+                     D1=TO_DATE(:D1,'YYYYMMDD')
+     WHERE WSID||''=:WSID AND PID||''=:PID AND (BAT+0=:OBAT or BAT+0=0)
+       AND DATS=TO_DATE(:Dats,'YYYYMMDDHH24MISS');
+  if ( V_SQLCODE == NOTFOUND ) {
+    VarcharInit( Dats );
+    EXEC SQL AT LogDB
+      INSERT INTO AFS73(WSID, PID, PNM, BAT, DATS, N1, D1, INF1, INF2)
+      VALUES(:WSID, :PID, :PNM, :OBAT, SYSDATE, :N1, TO_DATE(:D1,'YYYYMMDD'), :INF1, :INF2)
+      RETURNING TO_CHAR(DATS,'YYYYMMDDHH24MISS') INTO :Dats;
+    VarcharNullAdd( Dats );
+  }
+  if ( V_SQLCODE ) {
+    EXEC SQL AT LogDB ROLLBACK WORK RELEASE;
+    return( V_SQLCODE );
+  }
+
+  EXEC SQL AT LogDB COMMIT WORK RELEASE;
+  if ( V_SQLCODE ) {
+    EXEC SQL AT LogDB ROLLBACK WORK RELEASE;
+    return( V_SQLCODE );
+  }
+
+  return( 0 );
+}
+
+/*-----------------------------------------------------------------------------
+name   = SetAFS73()
+func   =
+io     =
+return = 0            :  normal
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      SetAFS73(char* status, char* Message, char* FileName)
+{
+TAB_DATA *Elem;
+TAB_DATA *Prim = &(sys.Data);
+int       i, Count = 0;
+
+  SetLogHead( 0 );
+  SetLogBody(1, 0, "%s[%s]", status, Message);
+
+  memset(Inf1, 0, sizeof(Inf1));
+  sprintf(Inf1,
+"[%s]   %s\r\n %s\r\n\
+--------------+----------\r\n\
+  ファイル名  +  %s\r\n\
+  バッチNo.   +  %.0f\r\n\
+  総件数      +  %8ld\r\n\
+--------------+----------",
+  status, sys.Cunm, Message, FileName, sys.OBat, sys.Count);
+
+  if ( SetDBLog(sys.UserPass, APP_NAME, APP_JNAME, Inf1, Inf2,
+                sys.OBat, sys.Count, sys.Vend, "", sys.Sdday, 0) ) {
+    SetLogHead( V_SQLCODE );
+    SetLogBody(1, 0, "ログ書込み失敗[%s]", Inf1);
+  }
+
+  return( 0 );
+}
+
+/*-----------------------------------------------------------------------------
+name   = DelAFS73()
+func   =
+io     =
+return = 0            :  normal
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      DelAFS73( void )
+{
+EXEC SQL BEGIN DECLARE SECTION;
+  VARCHAR  PID[9];
+  double   OBAT;
+  VARCHAR  C1[6];
+  VARCHAR  D1[9];
+EXEC SQL END   DECLARE SECTION;
+
+  SetLogHead( 0 );
+  SetLogBody(0, 0, "Delete AFS73[%s]", sys.Dats);
+
+  VarcharCpy(PID, APP_NAME,  strlen(APP_NAME) );
+  OBAT = sys.OBat;
+  VarcharCpy(C1,  sys.Vend,  strlen(sys.Vend) );
+  VarcharCpy(D1,  sys.Sdday, strlen(sys.Sdday));
+
+  EXEC SQL DELETE AFS73
+            WHERE PID=:PID AND BAT+0=:OBAT
+              AND D1=TO_DATE(:D1,'YYYYMMDD') AND (C1=:C1 OR (C1 IS NULL)) AND C2 IS NULL;
+  if ( V_SQLCODE ) {
+    SetLogHead( V_SQLCODE );
+    SetLogBody(1, 0, "ログ消去失敗[%s:%s:%s]", sys.Vend, sys.Cucd, sys.Sdday);
+  }
+
+  EXEC SQL COMMIT WORK;
+  if ( V_SQLCODE ) {
+    SetLogHead( V_SQLCODE );
+    SetLogBody(1, 0, "ログ消去失敗[(Del AFS73 commit)");
+    return( DBERROR );
+  }
+
+  return( 0 );
+}
+
+/*--------------------------------------------------------
+name   = GetDFile()
+func   = ファイル名(拡張子なし)取得
+io     = DFile       : -o : ファイル名
+         FileName    : i- : 取込み対象ファイル名(起動時に指定)
+return = 0           : normal
+         1           : unknown format
+date   = 2004/05/25  Written by T.Shirasaki(SE-No.229)
+---------------------------------------------------------*/
+int      GetDFile(char *DFile, char *FileName)
+{
+char    *cp;
+
+  strcpy(DFile, GetBaseName(FileName));
+  for ( cp = DFile; *cp != '\0'; cp++ ) {
+    if ( *cp == '.' ) {
+      *cp = '\0';
+    }
+  }
+
+  return( 0 );
+}
+
+/*-----------------------------------------------------------------------------
+name   = SetOnlineMon
+func   = AFS73に記録
+io     = Usr_Pwd      : i- DB接続文字列 [usr/pass@dbname 形式であること]
+         inf1         : i-
+         inf2         : i-
+         OBat         : i- 処理ﾊﾞｯﾁNo.
+return = 0            : normal
+         <>0          : DB error (ORACLE Error Code)
+date   = 2010/03/15   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+static int  SetOnlineMon(char* Usr_Pwd, char* Dtcls, char* Dftype, char* FileName, int Mode, int Reccnt)
+{
+EXEC SQL BEGIN DECLARE SECTION;
+  VARCHAR  ComUser[64];
+  VARCHAR  DbName[32];
+  VARCHAR  DTCLS[2+1];
+  VARCHAR  DFTYPE[6];
+  VARCHAR  DFILE[128];
+  int      ESTS;
+  int      RECCNT;
+EXEC SQL END   DECLARE SECTION;
+
+  EXEC SQL DECLARE MonDB DATABASE;
+
+  EXEC SQL WHENEVER SQLERROR CONTINUE;
+
+  SeparateDbName(Usr_Pwd, (char *)ComUser.arr, (char *)DbName.arr);
+  ComUser.len = strlen((char *)ComUser.arr);
+  DbName.len  = strlen((char *)DbName.arr);
+
+  EXEC SQL CONNECT :ComUser AT MonDB USING :DbName;
+  if ( V_SQLCODE ) {
+    return( V_SQLCODE );
+  }
+
+  VarcharCpy(DTCLS,  Dtcls,  strlen(Dtcls) );
+  VarcharCpy(DFTYPE, Dftype, strlen(Dftype));
+  VarcharInit( DFILE );
+  GetDFile((char*)DFILE.arr, FileName);
+  DFILE.len = strlen( (char*)DFILE.arr );
+  ESTS = (Mode ? 6 : 0);
+  RECCNT = Reccnt;
+
+  SetLogHead( Mode );
+  SetLogBody(0, 0, "Online稼動モニタ 変更[%s:%s]", DFTYPE.arr, DFILE.arr);
+
+  EXEC SQL AT MonDB EXECUTE
+  BEGIN
+    MON_UpdMonitoring(:DTCLS, :DFTYPE, :DFILE, :ESTS, :RECCNT);
+  END;
+  END-EXEC;
+  if ( V_SQLCODE ) {
+    SetLogBody(0, 0, "Online稼動モニタ 変更error[%d]", V_SQLCODE);
+    EXEC SQL AT MonDB ROLLBACK WORK RELEASE;
+    return( 0 );
+  }
+
+  EXEC SQL AT MonDB COMMIT WORK RELEASE;
+  if ( V_SQLCODE ) {
+    EXEC SQL AT MonDB ROLLBACK WORK RELEASE;
+    return( 0 );
+  }
+
+  return( 0 );
+}
+
+
+/*--------------------------------------------------------
+name   = SetDftype()
+func   = ファイル名よりフォ－マット種別を取得
+io     = Dftype      : -o : フォ－マット種別格納先
+         FileName    : i- : 取込み対象ファイル名(起動時に指定)
+return = 0           : normal
+         1           : unknown format
+date   = 2002/06/18  Written by T.Shirasaki(SE-No.229)
+---------------------------------------------------------*/
+int      SetDftype(char *Dftype, char *FileName)
+{
+char    *cp, *ext;
+
+  ext = NULL;
+  for ( cp = FileName; *cp != '\0'; cp++ ) {
+    if ( *cp == '.' ) {
+      ext = cp + 1;
+    }
+  }
+  if ( ext == (char *)NULL ) {
+    SetLogHead( 0 );
+    SetLogBody(1, 0, "Unkown format[%s]", FileName);
+    return( 1 );
+  }
+
+  StrnCpy(Dftype, ext, 3);
+  ToUppers( Dftype );
+
+  SetLogHead( 0 );
+  SetLogBody(1, 0, "Data format is \"%s\"(%s)", Dftype, FileName);
+
+  return( 0 );
+}
+
+/*-----------------------------------------------------------------------------
+name   = GetArgument()
+func   = 初期化処理
+io     =
+return = 0            :  normal
+         -1           :  abnormal
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      GetArgument(int argc, char* argv[])
+{
+int      i, Len;
+char     BatStr[11];
+
+  if ( argc < 2 ) {
+    SetLogHead(0);
+    SetLogBody(LOG_DSP, 0, "引数が足りません");
+    return( -1 );
+  }
+
+  for ( i = 0; i < argc; i++ ) {
+    if ( (*(argv[i]) == '-') || (*(argv[i]) == '/') ) {
+      switch( toupper(*(argv[i] + 1)) ) {
+       case 'F' :  /* ﾌｧｲﾙ名指定 */
+        if ( strlen(argv[i]) > 2 ) {
+          Len = strlen(argv[i]) - 2;
+          SetSysFileName(argv[i] + 2, Len);
+          if ( SetDftype(sys.Dftype, sys.FileName) ) {
+            return( 1 );
+          }
+        }
+        break;
+       default  :
+        ;
+      }
+    }
+    else {
+      SetSysUserPass( argv[i] );
+    }
+  }
+
+  memset(Inf2, 0, 512);
+  sprintf(Inf2, "af033k %s -f%s", GetSysUserPass(), GetSysFileName());
+
+  if ( !strlen(GetSysUserPass()) || !strlen(GetSysFileName()) ) {
+    return( FATALERROR );
+  }
+
+  return( NORMAL );
+}
+
+
+
+/*-----------------------------------------------------------------------------
+name   = Initiate()
+func   = 初期化処理
+io     = argc         :  i  int
+         argv         :  i  char**
+return = 次ｽﾃｰﾀｽ
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      Initiate(int argc, char* argv[])
+{
+int      i;
+
+  InitLog(LOG_NAME, APP_NAME, DEF_LOGSIZE);
+  SetLogHead(0);
+  SetLogBody(LOG_DSP, 0, "_/_/_/ %s(%s) 起動", APP_JNAME, APP_NAME);
+
+  ClearSys();
+  InitDataQue( &(sys.Data) );
+  SetSysInterval( 60 );
+  SetSysLogin( 0 );
+  SetSysLock( 0 );
+  SetSysExitCode( EXT_NORM );
+  sys.Mode = MODE_RDTXT;
+
+  if ( GetArgument(argc, argv) ) {
+    SetSysExitCode( EXT_USAGE );
+    PrintUsage();
+    return( STS_ERR );
+  }
+
+  return( STS_LOGIN );
+}
+
+
+
+/*-----------------------------------------------------------------------------
+name   = LoginToOracle()
+func   =
+io     =
+return = 次ｽﾃｰﾀｽ
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      LoginToOracle()
+{
+EXEC SQL BEGIN DECLARE SECTION;
+  VARCHAR usr_pwd[80];
+  VARCHAR sdday[8];
+EXEC SQL END   DECLARE SECTION;
+
+  VarcharCpy(usr_pwd, GetSysUserPass(), strlen(GetSysUserPass()));
+
+  EXEC SQL WHENEVER SQLERROR CONTINUE;
+  EXEC SQL CONNECT :usr_pwd ;
+  if ( V_SQLCODE < 0 ) {
+    SetLogHead(V_SQLCODE);
+    SetLogBody(LOG_DSP, 0,
+               "ORACLEへのLoginに失敗しました。(%s)", GetSysUserPass());
+    SetSysLogin( 0 );
+    return( STS_WAIT );
+  }
+  SetLogHead(0);
+  SetLogBody(LOG_DSP, 0, "ORACLEへLoginしました。(%s)", GetSysUserPass());
+  SetSysLogin( 1 );
+
+  EXEC SQL
+    SELECT TO_CHAR(SDDAY,'YYYYMMDD')
+      INTO :sdday
+      FROM AXM99
+     WHERE ID='1';
+  if ( V_SQLCODE ) {
+    SetLogHead(V_SQLCODE);
+    SetLogBody(LOG_DSP, 0, "制御ﾃﾞｰﾀ取得失敗", GetSysUserPass());
+    return( STS_WAIT );
+  }
+
+  if ( sys.OBat == (double)0.0 ) {
+    if ( GetOBat(&(sys.OBat)) ) {
+      SetAFS73("ﾃﾞｰﾀ取込ｴﾗｰ", "ﾊﾞｯﾁ番号取得に失敗しました", sys.FileName);
+      return( STS_WAIT );
+    }
+    SetLogHead(0);
+    SetLogBody(1, 0, "OBAT=%.0f", sys.OBat);
+  }
+
+  VarcharToStr(sys.Sdday, sdday);
+  SetLogHead( 0 );
+  SetLogBody(0, 0, "業務日付[%s]", sys.Sdday);
+
+  SetAFS73("開始", "", sys.FileName);
+
+  return( STS_EXCL );
+}
+
+
+/*-----------------------------------------------------------------------------
+name   = LockProcess()
+func   =
+io     = none
+return = 0            : Lock OK
+         1            : Lock Fail
+         -1           : Error
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      LockProcess( void )
+{
+EXEC SQL BEGIN DECLARE SECTION;
+  int      Status;
+EXEC SQL END   DECLARE SECTION;
+
+  EXEC SQL WHENEVER SQLERROR CONTINUE;
+  EXEC SQL EXECUTE
+  BEGIN
+    :Status := DBMS_Lock.Request(26, 6, 1, FALSE);
+  END;
+  END-EXEC;
+  if ( V_SQLCODE ) {
+    SetLogHead(V_SQLCODE);
+    SetLogBody(1, 0, "LOCK ERROR (%d)", V_SQLCODE);
+    return( -1 );
+  }
+  switch ( Status )  {
+    case 0:
+    case 1:
+      break;
+    default:
+      return( -1 );
+  }
+
+  return( Status );
+}
+
+
+/*--------------------------------------------------------
+name   = 二重走行チェック
+func   =
+io     =
+return = 次ｽﾃｰﾀｽ
+date   = 2001/06/14   Written by K.Sasaki(SE-151)
+---------------------------------------------------------*/
+int     Exclusive(void)
+{
+int     ret,i;
+
+  for( i=0; ((ret = LockProcess()) == 1) && i<120; i++ ) {
+    SetLogHead(0);
+    SetLogBody(1, 0, "%s 起動中 (%d秒 Wait)", APP_NAME, GetSysInterval());
+    Ssleep( GetSysInterval() );
+  }
+
+  if ( ret < 0 || i==120 ) {
+    SetLogHead(0);
+    SetLogBody(1, 0, "Lock 失敗");
+    return( STS_WAIT );
+  }
+
+  SetSysLock( 1 );
+
+  return( STS_READ );
+}
+
+/*-----------------------------------------------------------------------------
+name   = ReadData()
+func   =
+io     =
+return = 次ｽﾃｰﾀｽ
+date   = 2001/06/14   Written by K.Sasaki(SE-151)
+-----------------------------------------------------------------------------*/
+int      ReadData()
+{
+int      RetValue = STS_CHECK;
+int      ret;
+char     Message[256];
+
+  SetAFS73("ﾃﾞｰﾀ読込中", "", sys.FileName);
+
+  if ( sys.Mode & MODE_RDTXT ) {
+    switch( (ret=GetDataFromText(sys.FileName, &(sys.Data))) ) {
+     case -9 :  /* ﾌｧｲﾙなし */
+      RetValue = STS_DEXCL;
+      sprintf(Message,"ﾃﾞｰﾀﾌｧｲﾙがありません　(在庫報告)　[%s]\r\n<%s>", sys.Dftype, sys.FileName);
+      SetSysExitCode( EXT_FERR );
+      SetAFS73("ﾃﾞｰﾀ読込不可", "ﾃﾞｰﾀﾌｧｲﾙがありません", sys.FileName);
+      break;
+     case -2 :  /* その他   */
+      RetValue = STS_DEXCL;
+      sprintf(Message,"ﾃﾞｰﾀﾌｧｲﾙの読込に失敗しました　(在庫報告)　[%s]\r\n<%s>", sys.Dftype, sys.FileName);
+      SetSysExitCode( EXT_FERR );
+      SetAFS73("ﾃﾞｰﾀ読込ｴﾗｰ", "ﾃﾞｰﾀﾌｧｲﾙの読込に失敗しました", sys.FileName);
+      break;
+     case -1 :  /* ｻｲｽﾞ不正 */
+      RetValue = STS_DEXCL;
+      sprintf(Message,"ﾌｫｰﾏｯﾄが不正です　(在庫報告)　[%s]\r\n<%s>", sys.Dftype, sys.FileName);
+      SetSysExitCode( EXT_FERR );
+      SetAFS73("ﾃﾞｰﾀ読込ｴﾗｰ", "ﾌｫｰﾏｯﾄが不正です", sys.FileName);
+      break;
+     case  0 :  /* ﾃﾞｰﾀ 0件 */
+      RetValue = STS_DEXCL;
+      SetSysExitCode( EXT_NODAT );
+      break;
+     default :  /* 正常 */
+      SetAFS73("ﾃﾞｰﾀ読込終了", "", sys.FileName);
+      RetValue = STS_INSERT;
+    }
+  }
+  else { /* workより取込み */
+    ;
+  }
+  if( ret < 0 ){
+    ConsoleTimerMessage(Message, 0, 4);
+  }
+  return( RetValue );
+}
+
+
+/*--------------------------------------------------------
+name   = 排他解除
+func   =
+io     =
+return = 次ｽﾃｰﾀｽ
+date   = 2001/06/14   Written by K.Sasaki(SE-151)
+---------------------------------------------------------*/
+int     DExclusive(void)
+{
+EXEC SQL BEGIN DECLARE SECTION;
+  int      Status;
+EXEC SQL END   DECLARE SECTION;
+
+  EXEC SQL EXECUTE
+    BEGIN
+      :Status := dbms_lock.release( 26 );
+    END;
+  END-EXEC;
+
+  SetSysLock( 0 );
+
+  return( STS_END );
+}
+
+
+/*-----------------------------------------------------------------------------
+name   = WaitAndRollback()
+func   = login再試行待ち
+io     =
+return = 次ｽﾃｰﾀｽ
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      WaitAndRollback()
+{
+  SetAFS73("再起動中", "", sys.FileName);
+
+  FreeDataQue( &(sys.Data) );
+  DExclusive();
+  if ( GetSysLogin() ) {
+    SetSysLogin( 0 );
+    EXEC SQL ROLLBACK WORK RELEASE;
+  }
+  SetLogHead(0);
+  SetLogBody(LOG_DSP, 0, "おやすみ....(%d秒)", GetSysInterval());
+  Ssleep( GetSysInterval() );
+
+  return( STS_LOGIN );
+}
+
+
+/*--------------------------------------------------------
+name   = BackupFile()
+func   = バックアップ
+io     = local       : i- local file name
+         remote      : i- remote file name
+return = 0           : normal
+         -1          : abnormal
+date   = 2002/05/21  Written by T.Shirasaki(SE-No.229)
+---------------------------------------------------------*/
+int      BackupFile( void )
+{
+struct stat   buf;
+int      i;
+char     BaseName[64], BkupFile[256], Command[256];
+
+  strcpy(BaseName, GetBaseName(sys.FileName));
+
+  memset(BkupFile, 0, sizeof(BkupFile));
+  strcpy(BkupFile, "/ryutu/online/rback/");
+  strcat(BkupFile, BaseName);
+  if ( EM_MoveFile(sys.FileName, BkupFile) ) {
+    SetLogHead( 0 );
+    SetLogBody(1, 0, "Backup Error[%s->%s]", sys.FileName, BkupFile);
+    return( -1 );
+  }
+
+  SetLogHead( 0 );
+  SetLogBody(1, 0, "Backup[%s->%s]", sys.FileName, BkupFile);
+
+  return( 0 );
+}
+
+/*-----------------------------------------------------------------------------
+name   = InsertAFW56Z_CO1()
+func   = 在庫報告データ登録：コスモス広川
+io     = Dat          :  i-
+return = 0            :  normal
+         -2           :  DB error
+date   = 2012/01/20   Written by R.Takahashi(SE-No.361)
+-----------------------------------------------------------------------------*/
+int      InsertAFW56Z_CO1(TAB_DATA* Data)
+{
+  Obat   = sys.OBat;
+  VarcharCpy3(rcvdst,  Data->rcvdst,  strlen(Data->rcvdst) );
+  VarcharCpy3(custcd,  Data->custcd,  strlen(Data->custcd) );
+  VarcharCpy3(cencd,   Data->cencd,   strlen(Data->cencd)  );
+  if ( !strncmp(Data->ojan, "00000", 5) ) {
+    VarcharCpy3(ojan,  (Data->ojan + 5), (strlen(Data->ojan) - 5));
+  }
+  else {
+    VarcharCpy3(ojan,  Data->ojan,    strlen(Data->ojan)   );
+  }
+
+  /* cno : 保留品数量 */
+  cno    = Data->cno;
+  pno    = Data->pno;
+  pno9   = Data->pno9;
+  jpno   = Data->jpno;
+  zpno   = Data->zpno;
+  npno   = Data->npno;
+  if ( cno  > 0 ) { ind_cno  = 0; } else { ind_cno  = cno;  }
+  if ( pno  > 0 ) { ind_pno  = 0; } else { ind_pno  = pno;  }
+  if ( pno9 > 0 ) { ind_pno9 = 0; } else { ind_pno9 = pno9; }
+  if ( jpno > 0 ) { ind_jpno = 0; } else { ind_jpno = jpno; }
+  if ( zpno > 0 ) { ind_zpno = 0; } else { ind_zpno = zpno; }
+  if ( npno > 0 ) { ind_npno = 0; } else { ind_npno = npno; }
+
+  /* 保留品は、在庫調整(afw56r.cls='3')に取り込み */
+  if( cno > 0 ){
+    EXEC SQL
+      INSERT INTO
+          AFW56R(OBAT,  CLS,   RCVDST,  CUSTCD,  RSCD,  OJAN,  PNO,          PFLG,    STS,    FDCLS ,CENCD)
+          VALUES(:Obat, '3',   :rcvdst, :custcd, '59',  :ojan, :cno:ind_cno, 0,       ' ',    0     ,:cencd);
+    if ( V_SQLCODE ) {
+      SetLogHead( V_SQLCODE );
+      SetLogBody(1, 0, "INSERT ERROR(AFW56R:%s)", V_SQLERRMC);
+      SetLogBody(0, 0, "[%.0f] [%s(%d)] [%s(%d)] [%s(%d)] [%d]",
+       Obat, custcd.arr, custcd.len, rcvdst.arr, rcvdst.len, ojan.arr, ojan.len, cno );
+      return( -1 );
+    }
+  }
+
+  EXEC SQL
+    INSERT INTO
+        AFW56Z(OBAT,  RCVDST,  CUSTCD,    OJAN,  PNO,  PNO9,  JPNO, ZPNO, NPNO,  CLS, CENCD)
+        VALUES(:Obat, :rcvdst, :custcd,   :ojan, :pno:ind_pno, :pno9:ind_pno9, :jpno:ind_jpno, :zpno:ind_zpno, :npno:ind_npno, '1',:cencd);
+  if ( V_SQLCODE ) {
+    SetLogHead( V_SQLCODE );
+    SetLogBody(1, 0, "INSERT ERROR(AFW56Z:%s)", V_SQLERRMC);
+    SetLogBody(0, 0, "[%.0f] [%s(%d)] [%s(%d)] [%s(%d)]", Obat, rcvdst.arr, rcvdst.len, custcd.arr, custcd.len, ojan.arr, ojan.len );
+    SetLogBody(0, 0, "[%d] [%d] [%d] [%d] [%d]", pno, pno9, jpno, zpno, npno );
+    return( -1 );
+  }
+
+  return( 0 );
+}
+
+
+/*-----------------------------------------------------------------------------
+name   = InsertAFW56Z()
+func   = 在庫報告データ登録
+io     = Dat          :  i-
+return = 0            :  normal
+         -2           :  DB error
+date   = 2002/07/03   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      InsertAFW56Z(TAB_DATA* Data)
+{
+  Obat   = sys.OBat;
+  VarcharCpy3(rcvdst,  Data->rcvdst,  strlen(Data->rcvdst) );
+  VarcharCpy3(custcd,  Data->custcd,  strlen(Data->custcd) );
+  VarcharCpy3(cencd,   Data->cencd,   strlen(Data->cencd)  );
+  VarcharCpy3(vjan,    Data->vjan,    strlen(Data->vjan)   );
+  if ( !strncmp(Data->ojan, "00000", 5) ) {
+    VarcharCpy3(ojan,  (Data->ojan + 5), (strlen(Data->ojan) - 5));
+  }
+  else {
+    VarcharCpy3(ojan,  Data->ojan,    strlen(Data->ojan)   );
+  }
+  VarcharCpy3(cugdcd,  Data->cugdcd,  strlen(Data->cugdcd) );
+
+  /* Modified by M.Nariyama(SE No.325)  (2008.03.24) */
+  /* 潜在不良(shortは32768までなので在庫数過大だと－として誤動作) */
+#ifdef __DEL_DEL_DEL__
+  cno    = Data->cno;   ind_cno  = cno;
+  pno    = Data->pno;   ind_pno  = pno;
+  pno9   = Data->pno9;  ind_pno9 = pno9;
+  jpno   = Data->jpno;  ind_jpno = jpno;
+  zpno   = Data->zpno;  ind_zpno = zpno;
+  npno   = Data->npno;  ind_npno = npno;
+#else  /*__DEL_DEL_DEL__*/
+  cno    = Data->cno;
+  pno    = Data->pno;
+  pno9   = Data->pno9;
+  jpno   = Data->jpno;
+  zpno   = Data->zpno;
+  npno   = Data->npno;
+  if ( cno  > 0 ) { ind_cno  = 0; } else { ind_cno  = cno;  }
+  if ( pno  > 0 ) { ind_pno  = 0; } else { ind_pno  = pno;  }
+  if ( pno9 > 0 ) { ind_pno9 = 0; } else { ind_pno9 = pno9; }
+  if ( jpno > 0 ) { ind_jpno = 0; } else { ind_jpno = jpno; }
+  if ( zpno > 0 ) { ind_zpno = 0; } else { ind_zpno = zpno; }
+  if ( npno > 0 ) { ind_npno = 0; } else { ind_npno = npno; }
+#endif /*__DEL_DEL_DEL__*/
+
+  EXEC SQL
+    INSERT INTO
+        AFW56Z(OBAT,  RCVDST,  CUSTCD,  CENCD,  VJAN,  OJAN,  CUGDCD,
+               CNO,          PNO,  PNO9,  JPNO, ZPNO, NPNO,  CLS)
+        VALUES(:Obat, :rcvdst, :custcd, :cencd, :vjan, :ojan, :cugdcd,
+               :cno:ind_cno, :pno:ind_pno, :pno9:ind_pno9, :jpno:ind_jpno, :zpno:ind_zpno, :npno:ind_npno, '1');
+  if ( V_SQLCODE ) {
+    SetLogHead( V_SQLCODE );
+    SetLogBody(1, 0, "INSERT ERROR(AFW56Z:%s)", V_SQLERRMC);
+    SetLogBody(0, 0, "[%.0f] [%s(%d)] [%s(%d)]", Obat, custcd.arr, custcd.len, ojan.arr, ojan.len );
+    SetLogBody(0, 0, "[%d] [%d] [%d] [%d] [%d]", pno, pno9, jpno, zpno, npno );
+    return( -1 );
+  }
+  return( 0 );
+}
+
+
+/*-----------------------------------------------------------------------------
+name   = InsertData()
+func   = 取込み
+io     = Prim         :  i-
+return = 次ｽﾃｰﾀｽ
+date   = 2002/07/03   Written by T.Shirasaki(SE No. 229)
+         2003/09/09   Updated by SE-No.229  for 配達取消ﾁｪｯｸ
+         2007/01/04   Updated by M.Nariyama (SE No.325)
+         2015/05/07   Updated by N.Miyazaki (SE No.400) for 在庫0作成処理追加
+-----------------------------------------------------------------------------*/
+int      InsertData(TAB_DATA* Prim)
+{
+EXEC SQL BEGIN DECLARE SECTION;
+  VARCHAR  custcd[13];
+  int      lStatus;
+  VARCHAR  lMessage[1024];
+EXEC SQL END   DECLARE SECTION;
+TAB_DATA *Elem;
+TAB_DATA *Tmp;
+int       ret;
+MESP      Mesp;
+char      HostName[20];
+
+  SetAFS73("取込み中", "", sys.FileName);
+
+  EXEC SQL
+    SELECT TO_CHAR(SYSDATE,'YYYYMMDDHH24MISS')
+      INTO :IDat
+      FROM DUAL;
+  if ( V_SQLCODE ) {
+    SetLogHead( V_SQLCODE );
+    SetLogBody(1, 0, "sysdate取得ｴﾗｰ(%70.70s)", V_SQLERRMC);
+    SetAFS73("ﾃﾞｰﾀ取込みｴﾗｰ", "ﾃﾞｰﾀの取込みに失敗しました", sys.FileName);
+    goto LB_Error;
+  }
+  VarcharNullAdd( IDat );
+
+  /*** Modified by SE281 2005.06.14 削除条件SDDAY＋CUSTCD                  ***/
+  /*EXEC SQL DELETE FROM AFW56Z                                              */
+  /*          WHERE SDDAY=(SELECT SDDAY FROM AXM99 WHERE ID='1') AND CLS='1';*/
+  /*switch( V_SQLCODE ) {                                                    */
+  /*  case 0:                                                                */
+  /*  case 1403:                                                             */
+  /*    break;                                                               */
+  /*  default:                                                               */
+  /*    SetAFS73("ﾃﾞｰﾀ取込ｴﾗｰ", "ﾃﾞｰﾀの削除に失敗しました", sys.FileName);   */
+  /*    goto LB_Error;                                                       */
+  /*}                                                                        */
+  /***************************************************************************/
+
+  /*** Modified by SE281 2005.05.27 ***/
+  VarcharInit( custcd );
+  for ( Elem = Prim->Next; Elem != Prim; Elem = Elem->Next ) {
+    if( !strcmp( sys.Dftype, DFTYPE_SNK ) ||
+        !strcmp( sys.Dftype, DFTYPE_NB0 ) ) {
+      if( strcmp( custcd.arr, Elem->custcd ) ){
+
+        VarcharCpy( custcd, Elem->custcd, strlen( Elem->custcd ) );
+
+        EXEC SQL DELETE FROM AFW56Z
+                  WHERE SDDAY=(SELECT SDDAY FROM AXM99 WHERE ID='1')
+                    AND CUSTCD=:custcd
+                    AND CLS='1';
+        switch( V_SQLCODE ) {
+          case 0:
+          case 1403:
+            break;
+          default:
+            SetAFS73("ﾃﾞｰﾀ取込ｴﾗｰ", "ﾃﾞｰﾀの削除に失敗しました", sys.FileName);
+            goto LB_Error;
+        }
+      }
+    }
+
+  /*** Modified by R.Takahashi(SE-No.361) 2012.01.20 コスモス広川対応      ***/
+  /*if ( InsertAFW56Z(Elem) ) {                                              */
+  /*  SetAFS73("ﾃﾞｰﾀ取込みｴﾗｰ", "ﾃﾞｰﾀの取込みに失敗しました", sys.FileName); */
+  /*  goto LB_Error;                                                         */
+  /*}                                                                        */
+  /***************************************************************************/
+
+    if( !strcmp( sys.Dftype, DFTYPE_CO1 ) ){
+      ret = InsertAFW56Z_CO1(Elem);
+    }
+    else {
+      ret = InsertAFW56Z(Elem);
+    }
+
+    if ( ret < 0 ) {
+      SetAFS73("ﾃﾞｰﾀ取込みｴﾗｰ", "ﾃﾞｰﾀの取込みに失敗しました", sys.FileName);
+      goto LB_Error;
+    }
+  }
+
+  switch( sys.Cls ) {
+   case '1' : /** 受注残数更新処理起動 **/
+    Obat = sys.OBat;
+    EXEC SQL EXECUTE
+      BEGIN
+        af86ms( :Obat );
+      END;
+    END-EXEC;
+    if ( V_SQLCODE ) {
+      SetLogHead( V_SQLCODE );
+      SetLogBody(LOG_DSP, 0, "受注残更新失敗[%.0f](%s)", Obat, V_SQLERRMC);
+      goto LB_Error;
+    }
+    SetLogHead( 0 );
+    SetLogBody(0, 0, "受注残更新終了[%.0f]", Obat);
+    break;
+
+   case '2' : /** 在庫一覧自動印刷 **/
+    SetLogHead( 0 );
+    SetLogBody(0, 0, "帳票発行[%.0f]", sys.OBat);
+
+    memset(&Mesp, ' ', sizeof(MESP));
+    Mesp.Type = 'S';
+    MempCpy(Mesp.TerminalID, GetHostName(HostName), LEN_MESP_TERMINALID);
+    sprintf(Mesp.Batno, "%*.0f", LEN_MESP_BATNO, sys.OBat);
+    memset(Mesp.Psid, '0', LEN_MESP_PSID);
+    Mesp.Erep = ' ';
+    Mesp.Inh2 = '2';
+    Mesp.Priority = '2';
+    Mesp.ProcessType = '1';
+    /** Modified by M.Nariyama(SE-No.325)  (2007.01.04) JR東日本 対応     **/
+    /** MempCpy(Mesp.Jname, "在庫一覧 ", LEN_MESP_JNAME);                 **/
+    /** sprintf(Mesp.Path, "af70yx -G%s -R -V -M -S -E -P0", sys.Dftype); **/
+    if ( !strcmp(sys.Dftype, DFTYPE_JR1) ) {
+      MempCpy(Mesp.Jname, "棚卸情報 ", LEN_MESP_JNAME);
+      sprintf(Mesp.Path, "af70yx -G%s -R -V -M -S -E -P -Z", sys.Dftype);
+    }
+    else {
+      MempCpy(Mesp.Jname, "在庫一覧 ", LEN_MESP_JNAME);
+      sprintf(Mesp.Path, "af70yx -G%s -R -V -M -S -E -P0", sys.Dftype);
+    }
+    memcpy(lMessage.arr, &Mesp, sizeof(MESP));
+    lMessage.arr[sizeof(MESP)] = '\0';
+    lMessage.len = sizeof(MESP);
+
+    EXEC SQL EXECUTE
+    BEGIN
+      DBMS_Pipe.Pack_Message(:lMessage);
+      :lStatus := DBMS_Pipe.Send_Message('MESP_CNSL', 10);
+    END;
+    END-EXEC;
+    if ( V_SQLCODE ) {
+      SetLogHead( lStatus );
+      SetLogBody(0, 0, "帳票発行失敗[%s]", (char*)lMessage.arr);
+    }
+    break;
+
+   /** added by N.Miyazaki(SE-No.400) for 在庫0作成処理追加 **/
+   case '3' : /** 在庫0処理起動 **/
+    EXEC SQL EXECUTE
+      BEGIN
+        AF84BS( :Obat );
+      END;
+    END-EXEC;
+    if ( V_SQLCODE ) {
+      SetLogHead( V_SQLCODE );
+      SetLogBody( LOG_DSP, 0, "在庫0作成処理失敗[%.0f](%s)", Obat, V_SQLERRMC );
+      goto LB_Error;
+    }
+    SetLogHead( 0 );
+    SetLogBody(0, 0, "在庫0作成処理終了[%.0f]", Obat);
+    break;
+  }
+
+  EXEC SQL COMMIT WORK;
+  if ( V_SQLCODE ) {
+    SetAFS73("ﾃﾞｰﾀ取込ｴﾗｰ", "更新ﾃﾞｰﾀの確定に失敗しました", sys.FileName);
+    goto LB_Error;
+  }
+
+  return( STS_DEXCL );
+
+LB_Error:
+  EXEC SQL ROLLBACK WORK;
+  SetSysExitCode( EXT_DBERR );
+  return( STS_DEXCL );
+}
+
+/*-----------------------------------------------------------------------------
+name   = Terminate()
+func   = 終了処理
+io     =
+return = 0            :  normal
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      Terminate()
+{
+char     Message[256];
+char     HostName[20];
+int      Prio = 2;
+
+  EXEC SQL WHENEVER SQLERROR CONTINUE;
+
+  if ( GetSysLogin() ) {
+    memset(Message, 0, sizeof(Message));
+    switch( GetSysExitCode() ) {
+     case EXT_NORM  :
+#ifndef __DEBUG__
+      BackupFile();
+#endif
+      SetAFS73("正常終了", "", sys.FileName);
+      sprintf(Message, "%s[%s:%s様]　%ld件正常終了", APP_JNAME, sys.Dftype, sys.Cunm, sys.Count);
+      SetOnlineMon(sys.UserPass, sys.Dtcls, sys.Dftype, sys.FileName, 0, sys.Count);
+      break;
+
+     case EXT_NODAT :
+      BackupFile();
+      SetAFS73("○終了○", "ﾃﾞｰﾀがありません", sys.FileName);
+      sprintf(Message,
+        "%s[%s:%s]　終了\nデータがありません", APP_JNAME, sys.Dftype, sys.Cunm);
+      Prio = 3;
+      SetOnlineMon(sys.UserPass, sys.Dtcls, sys.Dftype, sys.FileName, 1, sys.Count);
+      break;
+
+     case EXT_USAGE :
+     case EXT_FERR  :
+     case EXT_DBERR :
+     default        :
+      sprintf(Message,
+        "◇◆%s[%s:%s]に失敗しました。◆◇\n◇◆　　再実行して下さい。　　◆◇", APP_JNAME, sys.Dftype, sys.Cunm);
+      Prio = 4;
+      SetOnlineMon(sys.UserPass, sys.Dtcls, sys.Dftype, sys.FileName, 1, sys.Count);
+    }
+    ResponseTerminateMessage(Message, "CNSL", 0, Prio);
+
+    EXEC SQL ROLLBACK WORK RELEASE;
+  }
+
+  /* ﾘｽﾄ領域解放 */
+  FreeDataQue( &(sys.Data) );
+
+  return( NORMAL );
+}
+
+
+/*-----------------------------------------------------------------------------
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      main(argc, argv)
+int      argc;
+char    *argv[];
+{
+  SetSysStatus( Initiate(argc, argv) );
+
+  while( (GetSysStatus() != STS_ERR) && (GetSysStatus() != STS_END) ) {
+    switch( GetSysStatus() ) {
+     case STS_WAIT   :
+      SetSysStatus( WaitAndRollback() );
+      break;
+     case STS_LOGIN  :
+      SetSysStatus( LoginToOracle() );
+      break;
+     case STS_EXCL   :
+      SetSysStatus( Exclusive() );
+      break;
+     case STS_READ   :
+      SetSysStatus( ReadData() );
+      break;
+     case STS_INSERT :
+      SetSysStatus( InsertData(&(sys.Data)) );
+      break;
+     case STS_DEXCL  :
+      SetSysStatus( DExclusive() );
+      break;
+     default     :
+      ;
+    }
+  }
+
+  Terminate();
+  SetLogHead(0);
+  SetLogBody(LOG_DSP, 0, "_/_/_/ %s 終了", APP_JNAME);
+  exit( GetSysExitCode() );
+}

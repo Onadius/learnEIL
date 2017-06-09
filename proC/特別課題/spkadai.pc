@@ -1,10 +1,10 @@
 /*****************************************************************************/
-/* spkadai.pc :                                                               */
+/* af033k.pc :                                                               */
 /*                                                                           */
-/* Notes-.        åœ¨åº«å ±å‘Šï¾ƒï¾ï½°ï¾€å–è¾¼Prog                                       */
-/*    Usage : miku user/pass[@xxx] -f<file>                                */
+/* Notes-.        İŒÉ•ñÃŞ°ÀæProg                                       */
+/*    Usage : af033k user/pass[@xxx] -f<file>                                */
 /*                                                                           */
-/*    EXIT-> 0 : æ­£å¸¸ (ERRãªã—)                                              */
+/*    EXIT-> 0 : ³í (ERR‚È‚µ)                                              */
 /*           1 : Fatal Error                                                 */
 /*           2 : DB Error                                                    */
 /*           5 : Usage                                                       */
@@ -12,6 +12,7 @@
 /* History-.              2001/06/14   :   Created by T.Shirasaki(SE-No.229) */
 /*                                                                           */
 /*****************************************************************************/
+
 #include "af033k.h"
 
 /* using ERROR CORD */
@@ -51,10 +52,10 @@ SYS  sys;
 
 /*-----------------------------------------------------------------------------
 name   = Initiate()
-func   = åˆæœŸåŒ–å‡¦ç†
+func   = ‰Šú‰»
 io     = argc         :  i  int
          argv         :  i  char**
-return = æ¬¡ï½½ï¾ƒï½°ï¾€ï½½
+return =
 date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
 -----------------------------------------------------------------------------*/
 int      Initiate(int argc, char* argv[])
@@ -63,7 +64,7 @@ int      i;
 
   InitLog(LOG_NAME, APP_NAME, DEF_LOGSIZE);
   SetLogHead(0);
-  SetLogBody(LOG_DSP, 0, "_/_/_/ %s(%s) èµ·å‹•", APP_JNAME, APP_NAME);
+  SetLogBody(LOG_DSP, 0, "_/_/_/ %s(%s) ‹N“®", APP_JNAME, APP_NAME);
 
   ClearSys();
   InitDataQue( &(sys.Data) );
@@ -76,8 +77,10 @@ int      i;
   if ( GetArgument(argc, argv) ) {
     SetSysExitCode( EXT_USAGE );
 
-    /* func: ? */
+    /* func: ?
     PrintUsage();
+    */
+
     return( STS_ERR );
   }
 
@@ -87,7 +90,7 @@ int      i;
 
 /*-----------------------------------------------------------------------------
 name   = GetArgument()
-func   = åˆæœŸåŒ–å‡¦ç†
+func   = ‰Šú‰»ˆ—
 io     =
 return = 0            :  normal
          -1           :  abnormal
@@ -100,21 +103,19 @@ char     BatStr[11];
 
   if ( argc < 2 ) {
     SetLogHead(0);
-    SetLogBody(LOG_DSP, 0, "å¼•æ•°ãŒè¶³ã‚Šã¾ã›ã‚“");
+    SetLogBody(LOG_DSP, 0, "ˆø”‚ª‘«‚è‚Ü‚¹‚ñ");
     return( -1 );
   }
 
   for ( i = 0; i < argc; i++ ) {
     if ( (*(argv[i]) == '-') || (*(argv[i]) == '/') ) {
       switch( toupper(*(argv[i] + 1)) ) {
-
-       case 'F' :  /* ï¾Œï½§ï½²ï¾™åæŒ‡å®š */
+       case 'F' :  /* Ì§²Ù–¼w’è */
         if ( strlen(argv[i]) > 2 ) {
           Len = strlen(argv[i]) - 2;
-
-          /* sysæ§‹é€ ä½“ã®ãƒ¡ãƒ³ãƒFileNameã«èµ·å‹•å¼•æ•°-fã‹ã‚‰ãƒ•ã‚¡ã‚¤ãƒ«åã‚’æ ¼ç´ */
           SetSysFileName(argv[i] + 2, Len);
 
+          /* ƒtƒ@ƒCƒ‹–¼‚æ‚èƒtƒH|ƒ}ƒbƒgí•Ê‚ğæ“¾ */
           if ( SetDftype(sys.Dftype, sys.FileName) ) {
             return( 1 );
           }
@@ -140,6 +141,42 @@ char     BatStr[11];
 }
 
 
+/*--------------------------------------------------------
+name   = SetDftype()
+func   = ƒtƒ@ƒCƒ‹–¼‚æ‚èƒtƒH|ƒ}ƒbƒgí•Ê‚ğæ“¾
+io     = Dftype      : -o : ƒtƒH|ƒ}ƒbƒgí•ÊŠi”[æ
+         FileName    : i- : æ‚İ‘ÎÛƒtƒ@ƒCƒ‹–¼(‹N“®‚Éw’è)
+return = 0           : normal
+         1           : unknown format
+date   = 2002/06/18  Written by T.Shirasaki(SE-No.229)
+---------------------------------------------------------*/
+int      SetDftype(char *Dftype, char *FileName)
+{
+char    *cp, *ext;
+
+  ext = NULL;
+  for ( cp = FileName; *cp != '\0'; cp++ ) {
+    if ( *cp == '.' ) {
+      ext = cp + 1;
+    }
+  }
+  if ( ext == (char *)NULL ) {
+    SetLogHead( 0 );
+    SetLogBody(1, 0, "Unkown format[%s]", FileName);
+    return( 1 );
+  }
+
+  StrnCpy(Dftype, ext, 3);
+  ToUppers( Dftype );
+
+  SetLogHead( 0 );
+  SetLogBody(1, 0, "Data format is \"%s\"(%s)", Dftype, FileName);
+
+  return( 0 );
+}
+
+
+
 /*-----------------------------------------------------------------------------
 name   = PrintUsage()
 func   =
@@ -147,7 +184,7 @@ io     =
 return =
 date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
 
------------------------------------------------------------------------------*/
+
 void     PrintUsage()
 {
 char PID[9], pid[9];
@@ -159,37 +196,277 @@ int  i;
   SetLogBody(LOG_DSP, 0, "<usage> %s user/pass[@xxx] -f<FILENAME>", pid );
   return;
 }
+-----------------------------------------------------------------------------*/
+
+
+/*-----------------------------------------------------------------------------
+name   = InitDataQue()
+func   =
+io     =
+return =
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      InitDataQue(TAB_DATA* Prim)
+{
+  memset(Prim, 0, sizeof(TAB_DATA));
+
+  Prim->Prev = Prim;
+  Prim->Next = Prim;
+
+  return( 0 );
+}
+
+
+
+/*-----------------------------------------------------------------------------
+name   = AddDataQue()
+func   =
+io     =
+return =
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      AddDataQue(TAB_DATA* Prim, TAB_DATA* AddElem)
+{
+TAB_DATA *NewElem;
+TAB_DATA *PrevElem;
+
+  if ( (NewElem = (TAB_DATA*)malloc(sizeof(TAB_DATA))) == (TAB_DATA*)NULL ) {
+    return( -1 );
+  }
+
+  memset(NewElem, 0,       sizeof(TAB_DATA));
+  memcpy(NewElem, AddElem, sizeof(TAB_DATA));
+
+  /* ˜AŒ‹ */
+  PrevElem       = Prim->Prev;
+  NewElem->Next  = Prim;
+  NewElem->Prev  = PrevElem;
+  PrevElem->Next = NewElem;
+  Prim->Prev     = NewElem;
+
+  return( 0 );
+}
+
 
 
 /*-----------------------------------------------------------------------------
 name   = WaitAndRollback()
-func   = loginå†è©¦è¡Œå¾…ã¡
+func   = loginÄs
 io     =
-return = æ¬¡ï½½ï¾ƒï½°ï¾€ï½½
+return =
 date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
 -----------------------------------------------------------------------------*/
 int      WaitAndRollback()
 {
-  SetAFS73("å†èµ·å‹•ä¸­", "", sys.FileName);
+  SetAFS73("Ä‹N“®’†", "", sys.FileName);
 
-  FreeDataQue( &(sys.Data) ); /* func:ï¾˜ï½½ï¾„ã®é ˜åŸŸã‚’è§£æ”¾ */
-  DExclusive(); /* func:æ’ä»–è§£é™¤ */
+  FreeDataQue( &(sys.Data) ); /* func:???½???‚Ì—Ìˆæ‚ğ‰ğ•ú */
+  DExclusive(); /* func:”r‘¼‰ğœ */
 
   if ( GetSysLogin() ) {
     SetSysLogin( 0 );
     EXEC SQL ROLLBACK WORK RELEASE;
   }
   SetLogHead(0);
-  SetLogBody(LOG_DSP, 0, "ãŠã‚„ã™ã¿....(%dç§’)", GetSysInterval());
+  SetLogBody(LOG_DSP, 0, "‚¨‚â‚·‚İ....(%d???)", GetSysInterval());
   Ssleep( GetSysInterval() );
 
   return( STS_LOGIN );
 }
 
 
+/*****   ƒŠƒXƒgŠÖ˜A   *****/
+
+/*-----------------------------------------------------------------------------
+name   = SetDBLog
+func   = AFS73‚É‹L˜^
+io     = Usr_Pwd      : i- DBÚ‘±•¶š—ñ [usr/pass@dbname Œ`®‚Å‚ ‚é‚±‚Æ]
+         pid          : i- ÌßÛ¸Ş×ÑID
+         pnm          : i- ÌßÛ¸Ş×Ñ–¼
+         dats         : io ˆ—ŠJn (w’è‚È‚µ‚È‚ç Œ»İ‚ğ¾¯Ä)
+         inf1         : i-
+         inf2         : i-
+         OBat         : i- ˆ—ÊŞ¯ÁNo.
+return = 0            : normal
+         <>0          : DB error (ORACLE Error Code)
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+static int  SetDBLog(char* Usr_Pwd, char* pid, char* pnm, char* inf1, char* inf2,
+                     double OBat, int Count, char* Vend, char* Cucd, char* Dat, int idx)
+{
+EXEC SQL BEGIN DECLARE SECTION;
+  VARCHAR  ComUser[64];
+  VARCHAR  DbName[32];
+  VARCHAR  WSID[6];
+  VARCHAR  PID[9];
+  VARCHAR  PNM[25];
+  VARCHAR  INF1[512];
+  VARCHAR  INF2[512];
+  double   OBAT;
+  long     N1;
+  VARCHAR  C1[6];
+  VARCHAR  C2[8];
+  VARCHAR  D1[9];
+  double   Idx;
+EXEC SQL END   DECLARE SECTION;
+char     wsid[16];
+
+  EXEC SQL DECLARE LogDB DATABASE;
+
+  EXEC SQL WHENEVER SQLERROR CONTINUE;
+
+  SeparateDbName(Usr_Pwd, (char *)ComUser.arr, (char *)DbName.arr);
+  ComUser.len = strlen((char *)ComUser.arr);
+  DbName.len  = strlen((char *)DbName.arr);
+
+  EXEC SQL CONNECT :ComUser AT LogDB USING :DbName;
+  if ( V_SQLCODE ) {
+    return( V_SQLCODE );
+  }
+
+  memset(wsid, 0, sizeof(wsid));
+#ifdef __USE_WSID__
+  GetHostName( wsid );
+#else
+  strcpy(wsid, "ONLNE");
+#endif
+  OBAT = OBat;
+  VarcharCpy(WSID, wsid, strlen(wsid));
+  VarcharCpy(PID,  pid,  strlen(pid) );
+  VarcharCpy(PNM,  pnm,  strlen(pnm) );
+  VarcharCpy(INF1, inf1, strlen(inf1));
+  VarcharCpy(INF2, inf2, strlen(inf2));
+  N1   = Count;
+  VarcharCpy(C1,   Vend, strlen(Vend));
+  VarcharCpy(C2,   Cucd, strlen(Cucd));
+  VarcharCpy(D1,   Dat,  strlen(Dat) );
+
+  EXEC SQL AT LogDB
+    UPDATE AFS73 SET DATT=SYSDATE, BAT=:OBAT,  N1=:N1,
+                     INF1=:INF1,   INF2=:INF2,
+                     D1=TO_DATE(:D1,'YYYYMMDD')
+     WHERE WSID||''=:WSID AND PID||''=:PID AND (BAT+0=:OBAT or BAT+0=0)
+       AND DATS=TO_DATE(:Dats,'YYYYMMDDHH24MISS');
+  if ( V_SQLCODE == NOTFOUND ) {
+    VarcharInit( Dats );
+    EXEC SQL AT LogDB
+      INSERT INTO AFS73(WSID, PID, PNM, BAT, DATS, N1, D1, INF1, INF2)
+      VALUES(:WSID, :PID, :PNM, :OBAT, SYSDATE, :N1, TO_DATE(:D1,'YYYYMMDD'), :INF1, :INF2)
+      RETURNING TO_CHAR(DATS,'YYYYMMDDHH24MISS') INTO :Dats;
+    VarcharNullAdd( Dats );
+  }
+  if ( V_SQLCODE ) {
+    EXEC SQL AT LogDB ROLLBACK WORK RELEASE;
+    return( V_SQLCODE );
+  }
+
+  EXEC SQL AT LogDB COMMIT WORK RELEASE;
+  if ( V_SQLCODE ) {
+    EXEC SQL AT LogDB ROLLBACK WORK RELEASE;
+    return( V_SQLCODE );
+  }
+
+  return( 0 );
+}
+
+/*-----------------------------------------------------------------------------
+name   = SetAFS73()
+func   =
+io     =
+return = 0            :  normal
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      SetAFS73(char* status, char* Message, char* FileName)
+{
+TAB_DATA *Elem;
+TAB_DATA *Prim = &(sys.Data);
+int       i, Count = 0;
+
+  SetLogHead( 0 );
+  SetLogBody(1, 0, "%s[%s]", status, Message);
+
+  memset(Inf1, 0, sizeof(Inf1));
+  printf("SetAFS‚Ì‚â‚Â‚¾‚æ\n");
+
+  if ( SetDBLog(sys.UserPass, APP_NAME, APP_JNAME, Inf1, Inf2,
+                sys.OBat, sys.Count, sys.Vend, "", sys.Sdday, 0) ) {
+    SetLogHead( V_SQLCODE );
+    SetLogBody(1, 0, "ƒƒO‘‚İ¸”s[%s]", Inf1);
+  }
+
+  return( 0 );
+}
+
+/*-----------------------------------------------------------------------------
+name   = DelAFS73()
+func   =
+io     =
+return = 0            :  normal
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      DelAFS73( void )
+{
+EXEC SQL BEGIN DECLARE SECTION;
+  VARCHAR  PID[9];
+  double   OBAT;
+  VARCHAR  C1[6];
+  VARCHAR  D1[9];
+EXEC SQL END   DECLARE SECTION;
+
+  SetLogHead( 0 );
+  SetLogBody(0, 0, "Delete AFS73[%s]", sys.Dats);
+
+  VarcharCpy(PID, APP_NAME,  strlen(APP_NAME) );
+  OBAT = sys.OBat;
+  VarcharCpy(C1,  sys.Vend,  strlen(sys.Vend) );
+  VarcharCpy(D1,  sys.Sdday, strlen(sys.Sdday));
+
+  EXEC SQL DELETE AFS73
+            WHERE PID=:PID AND BAT+0=:OBAT
+              AND D1=TO_DATE(:D1,'YYYYMMDD') AND (C1=:C1 OR (C1 IS NULL)) AND C2 IS NULL;
+  if ( V_SQLCODE ) {
+    SetLogHead( V_SQLCODE );
+    SetLogBody(1, 0, "ƒƒOÁ‹¸”s[%s:%s:%s]", sys.Vend, sys.Cucd, sys.Sdday);
+  }
+
+  EXEC SQL COMMIT WORK;
+  if ( V_SQLCODE ) {
+    SetLogHead( V_SQLCODE );
+    SetLogBody(1, 0, "ƒƒOÁ‹¸”s[(Del AFS73 commit)");
+    return( DBERROR );
+  }
+
+  return( 0 );
+}
+
+
+/*-----------------------------------------------------------------------------
+name   = DeleteDataQue()
+func   = Ø½Ä‚Ì—Ìˆæ‚ğ‰ğ•ú
+io     =
+return =
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      DeleteDataQue(TAB_DATA* DeleteElem)
+{
+TAB_DATA *PrevElem;
+TAB_DATA *NextElem;
+
+  PrevElem = DeleteElem->Prev;
+  NextElem = DeleteElem->Next;
+
+  PrevElem->Next = NextElem;
+  NextElem->Prev = PrevElem;
+
+  free( DeleteElem );
+
+  return( 0 );
+}
+
+
 /*-----------------------------------------------------------------------------
 name   = FreeDataQue()
-func   = ï¾˜ï½½ï¾„ã®é ˜åŸŸã‚’è§£æ”¾
+func   = —Ìˆæ‚ğ‰ğ•ú
 io     =
 return =
 date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
@@ -207,10 +484,10 @@ TAB_DATA *DeleteElem;
 
 
 /*--------------------------------------------------------
-name   = æ’ä»–è§£é™¤
+name   = ”r‘¼‰ğœ
 func   =
 io     =
-return = æ¬¡ï½½ï¾ƒï½°ï¾€ï½½
+return =
 date   = 2001/06/14   Written by K.Sasaki(SE-151)
 ---------------------------------------------------------*/
 int     DExclusive(void)
@@ -235,12 +512,8 @@ EXEC SQL END   DECLARE SECTION;
 name   = LoginToOracle()
 func   =
 io     =
-return = æ¬¡ï½½ï¾ƒï½°ï¾€ï½½
+return = Ÿ½Ã°À½
 date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
-
-memo
-SetSysStatus() --> sysã¨ã„ã†æ§‹é€ ä½“ã®statusã¨ã„ã†ãƒ¡ãƒ³ãƒã«å¼•æ•°ã‚’ä»£å…¥ã—ã¦ã„ã‚‹
-GetSysUserPass()
 -----------------------------------------------------------------------------*/
 int      LoginToOracle()
 {
@@ -256,12 +529,12 @@ EXEC SQL END   DECLARE SECTION;
   if ( V_SQLCODE < 0 ) {
     SetLogHead(V_SQLCODE);
     SetLogBody(LOG_DSP, 0,
-               "ORACLEã¸ã®Loginã«å¤±æ•—ã—ã¾ã—ãŸã€‚(%s)", GetSysUserPass());
+               "ORACLE‚Ö‚ÌLogin‚É¸”s‚µ‚Ü‚µ‚½B(%s)", GetSysUserPass());
     SetSysLogin( 0 );
     return( STS_WAIT );
   }
   SetLogHead(0);
-  SetLogBody(LOG_DSP, 0, "ORACLEã¸Loginã—ã¾ã—ãŸã€‚(%s)", GetSysUserPass());
+  SetLogBody(LOG_DSP, 0, "ORACLE‚ÖLogin‚µ‚Ü‚µ‚½B(%s)", GetSysUserPass());
   SetSysLogin( 1 );
 
   EXEC SQL
@@ -271,13 +544,13 @@ EXEC SQL END   DECLARE SECTION;
      WHERE ID='1';
   if ( V_SQLCODE ) {
     SetLogHead(V_SQLCODE);
-    SetLogBody(LOG_DSP, 0, "åˆ¶å¾¡ï¾ƒï¾ï½°ï¾€å–å¾—å¤±æ•—", GetSysUserPass());
+    SetLogBody(LOG_DSP, 0, "§ŒäÃŞ°Àæ“¾¸”s", GetSysUserPass());
     return( STS_WAIT );
   }
 
   if ( sys.OBat == (double)0.0 ) {
     if ( GetOBat(&(sys.OBat)) ) {
-      SetAFS73("ï¾ƒï¾ï½°ï¾€å–è¾¼ï½´ï¾—ï½°", "ï¾Šï¾ï½¯ï¾ç•ªå·å–å¾—ã«å¤±æ•—ã—ã¾ã—ãŸ", sys.FileName);
+      SetAFS73("ÃŞ°Àæ´×°", "ÊŞ¯Á”Ô†æ“¾‚É¸”s‚µ‚Ü‚µ‚½", sys.FileName);
       return( STS_WAIT );
     }
     SetLogHead(0);
@@ -286,12 +559,81 @@ EXEC SQL END   DECLARE SECTION;
 
   VarcharToStr(sys.Sdday, sdday);
   SetLogHead( 0 );
-  SetLogBody(0, 0, "æ¥­å‹™æ—¥ä»˜[%s]", sys.Sdday);
+  SetLogBody(0, 0, "‹Æ–±“ú•t[%s]", sys.Sdday);
 
-  SetAFS73("é–‹å§‹", "", sys.FileName);
+  SetAFS73("ŠJn", "", sys.FileName);
 
   return( STS_EXCL );
 }
+
+
+
+/*--------------------------------------------------------
+name   = “ñd‘–sƒ`ƒFƒbƒN
+func   =
+io     =
+return = Ÿ½Ã°À½
+date   = 2001/06/14   Written by K.Sasaki(SE-151)
+---------------------------------------------------------*/
+int     Exclusive(void)
+{
+int     ret,i;
+
+  for( i=0; ((ret = LockProcess()) == 1) && i<120; i++ ) {
+    SetLogHead(0);
+    SetLogBody(1, 0, "%s ‹N“®’† (%d•b Wait)", APP_NAME, GetSysInterval());
+    Ssleep( GetSysInterval() );
+  }
+
+  if ( ret < 0 || i==120 ) {
+    SetLogHead(0);
+    SetLogBody(1, 0, "Lock ¸”s");
+    return( STS_WAIT );
+  }
+
+  SetSysLock( 1 );
+
+  return( STS_READ );
+}
+
+
+/*-----------------------------------------------------------------------------
+name   = LockProcess()
+func   =
+io     = none
+return = 0            : Lock OK
+         1            : Lock Fail
+         -1           : Error
+date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      LockProcess( void )
+{
+EXEC SQL BEGIN DECLARE SECTION;
+  int      Status;
+EXEC SQL END   DECLARE SECTION;
+
+  EXEC SQL WHENEVER SQLERROR CONTINUE;
+  EXEC SQL EXECUTE
+  BEGIN
+    :Status := DBMS_Lock.Request(26, 6, 1, FALSE);
+  END;
+  END-EXEC;
+  if ( V_SQLCODE ) {
+    SetLogHead(V_SQLCODE);
+    SetLogBody(1, 0, "LOCK ERROR (%d)", V_SQLCODE);
+    return( -1 );
+  }
+  switch ( Status )  {
+    case 0:
+    case 1:
+      break;
+    default:
+      return( -1 );
+  }
+
+  return( Status );
+}
+
 
 
 
@@ -299,7 +641,7 @@ EXEC SQL END   DECLARE SECTION;
 name   = ReadData()
 func   =
 io     =
-return = æ¬¡ï½½ï¾ƒï½°ï¾€ï½½
+return = Ÿ½Ã°À½
 date   = 2001/06/14   Written by K.Sasaki(SE-151)
 -----------------------------------------------------------------------------*/
 int      ReadData()
@@ -308,38 +650,45 @@ int      RetValue = STS_CHECK;
 int      ret;
 char     Message[256];
 
-  SetAFS73("ï¾ƒï¾ï½°ï¾€èª­è¾¼ä¸­", "", sys.FileName);
+  SetAFS73("ÃŞ°À“Ç’†", "", sys.FileName);
 
   if ( sys.Mode & MODE_RDTXT ) {
+
+    /* readtxt.c‚æ‚è */
     switch( (ret=GetDataFromText(sys.FileName, &(sys.Data))) ) {
-     case -9 :  /* ï¾Œï½§ï½²ï¾™ãªã— */
+     case -9 :  /* Ì§²Ù‚È‚µ */
       RetValue = STS_DEXCL;
-      sprintf(Message,"ï¾ƒï¾ï½°ï¾€ï¾Œï½§ï½²ï¾™ãŒã‚ã‚Šã¾ã›ã‚“ã€€(åœ¨åº«å ±å‘Š)ã€€[%s]\r\n<%s>", sys.Dftype, sys.FileName);
+      sprintf(Message,"ÃŞ°ÀÌ§²Ù‚ª‚ ‚è‚Ü‚¹‚ñ@(İŒÉ•ñ)@[%s]\r\n<%s>", sys.Dftype, sys.FileName);
       SetSysExitCode( EXT_FERR );
-      SetAFS73("ï¾ƒï¾ï½°ï¾€èª­è¾¼ä¸å¯", "ï¾ƒï¾ï½°ï¾€ï¾Œï½§ï½²ï¾™ãŒã‚ã‚Šã¾ã›ã‚“", sys.FileName);
+      SetAFS73("ÃŞ°À“Ç•s‰Â", "ÃŞ°ÀÌ§²Ù‚ª‚ ‚è‚Ü‚¹‚ñ", sys.FileName);
       break;
-     case -2 :  /* ãã®ä»–   */
+
+     case -2 :  /* ‚»‚Ì‘¼   */
       RetValue = STS_DEXCL;
-      sprintf(Message,"ï¾ƒï¾ï½°ï¾€ï¾Œï½§ï½²ï¾™ã®èª­è¾¼ã«å¤±æ•—ã—ã¾ã—ãŸã€€(åœ¨åº«å ±å‘Š)ã€€[%s]\r\n<%s>", sys.Dftype, sys.FileName);
+      sprintf(Message,"ÃŞ°ÀÌ§²Ù‚Ì“Ç‚É¸”s‚µ‚Ü‚µ‚½@(İŒÉ•ñ)@[%s]\r\n<%s>", sys.Dftype, sys.FileName);
       SetSysExitCode( EXT_FERR );
-      SetAFS73("ï¾ƒï¾ï½°ï¾€èª­è¾¼ï½´ï¾—ï½°", "ï¾ƒï¾ï½°ï¾€ï¾Œï½§ï½²ï¾™ã®èª­è¾¼ã«å¤±æ•—ã—ã¾ã—ãŸ", sys.FileName);
+      SetAFS73("ÃŞ°À“Ç´×°", "ÃŞ°ÀÌ§²Ù‚Ì“Ç‚É¸”s‚µ‚Ü‚µ‚½", sys.FileName);
       break;
-     case -1 :  /* ï½»ï½²ï½½ï¾ä¸æ­£ */
+
+     case -1 :  /* »²½Ş•s³ */
       RetValue = STS_DEXCL;
-      sprintf(Message,"ï¾Œï½«ï½°ï¾ï½¯ï¾„ãŒä¸æ­£ã§ã™ã€€(åœ¨åº«å ±å‘Š)ã€€[%s]\r\n<%s>", sys.Dftype, sys.FileName);
+      sprintf(Message,"Ì«°Ï¯Ä‚ª•s³‚Å‚·@(İŒÉ•ñ)@[%s]\r\n<%s>", sys.Dftype, sys.FileName);
       SetSysExitCode( EXT_FERR );
-      SetAFS73("ï¾ƒï¾ï½°ï¾€èª­è¾¼ï½´ï¾—ï½°", "ï¾Œï½«ï½°ï¾ï½¯ï¾„ãŒä¸æ­£ã§ã™", sys.FileName);
+      SetAFS73("ÃŞ°À“Ç´×°", "Ì«°Ï¯Ä‚ª•s³‚Å‚·", sys.FileName);
       break;
-     case  0 :  /* ï¾ƒï¾ï½°ï¾€ 0ä»¶ */
+
+     case  0 :  /* ÃŞ°À 0Œ */
       RetValue = STS_DEXCL;
       SetSysExitCode( EXT_NODAT );
       break;
-     default :  /* æ­£å¸¸ */
-      SetAFS73("ï¾ƒï¾ï½°ï¾€èª­è¾¼çµ‚äº†", "", sys.FileName);
-      RetValue = STS_INSERT;
+
+     default :  /* ³í */
+      SetAFS73("ÃŞ°À“ÇI—¹", "", sys.FileName);
+      /* RetValue = STS_INSERT; */
+      RetValue = STS_DEXCL ;
     }
   }
-  else { /* workã‚ˆã‚Šå–è¾¼ã¿ */
+  else { /* work‚æ‚èæ‚İ */
     ;
   }
   if( ret < 0 ){
@@ -350,9 +699,10 @@ char     Message[256];
 
 
 
+
 /*-----------------------------------------------------------------------------
 name   = Terminate()
-func   = çµ‚äº†å‡¦ç†
+func   = I—¹ˆ—
 io     =
 return = 0            :  normal
 date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
@@ -372,16 +722,16 @@ int      Prio = 2;
 #ifndef __DEBUG__
       BackupFile();
 #endif
-      SetAFS73("æ­£å¸¸çµ‚äº†", "", sys.FileName);
-      sprintf(Message, "%s[%s:%sæ§˜]ã€€%ldä»¶æ­£å¸¸çµ‚äº†", APP_JNAME, sys.Dftype, sys.Cunm, sys.Count);
+      SetAFS73("³íI—¹", "", sys.FileName);
+      sprintf(Message, "%s[%s:%s—l]@%ldŒ³íI—¹", APP_JNAME, sys.Dftype, sys.Cunm, sys.Count);
       SetOnlineMon(sys.UserPass, sys.Dtcls, sys.Dftype, sys.FileName, 0, sys.Count);
       break;
 
      case EXT_NODAT :
       BackupFile();
-      SetAFS73("â—‹çµ‚äº†â—‹", "ï¾ƒï¾ï½°ï¾€ãŒã‚ã‚Šã¾ã›ã‚“", sys.FileName);
+      SetAFS73("›I—¹›", "ÃŞ°À‚ª‚ ‚è‚Ü‚¹‚ñ", sys.FileName);
       sprintf(Message,
-        "%s[%s:%s]ã€€çµ‚äº†\nãƒ‡ãƒ¼ã‚¿ãŒã‚ã‚Šã¾ã›ã‚“", APP_JNAME, sys.Dftype, sys.Cunm);
+        "%s[%s:%s]@I—¹\nƒf[ƒ^‚ª‚ ‚è‚Ü‚¹‚ñ", APP_JNAME, sys.Dftype, sys.Cunm);
       Prio = 3;
       SetOnlineMon(sys.UserPass, sys.Dtcls, sys.Dftype, sys.FileName, 1, sys.Count);
       break;
@@ -391,7 +741,7 @@ int      Prio = 2;
      case EXT_DBERR :
      default        :
       sprintf(Message,
-        "â—‡â—†%s[%s:%s]ã«å¤±æ•—ã—ã¾ã—ãŸã€‚â—†â—‡\nâ—‡â—†ã€€ã€€å†å®Ÿè¡Œã—ã¦ä¸‹ã•ã„ã€‚ã€€ã€€â—†â—‡", APP_JNAME, sys.Dftype, sys.Cunm);
+        "Ÿ%s[%s:%s]‚É¸”s‚µ‚Ü‚µ‚½BŸ\nŸ@@ÄÀs‚µ‚Ä‰º‚³‚¢B@@Ÿ", APP_JNAME, sys.Dftype, sys.Cunm);
       Prio = 4;
       SetOnlineMon(sys.UserPass, sys.Dtcls, sys.Dftype, sys.FileName, 1, sys.Count);
     }
@@ -400,16 +750,108 @@ int      Prio = 2;
     EXEC SQL ROLLBACK WORK RELEASE;
   }
 
-  /* ï¾˜ï½½ï¾„é ˜åŸŸè§£æ”¾ */
+  /* Ø½Ä—Ìˆæ‰ğ•ú */
   FreeDataQue( &(sys.Data) );
 
   return( NORMAL );
 }
 
 
+/*-----------------------------------------------------------------------------
+name   = SetOnlineMon
+func   = AFS73‚É‹L˜^
+io     = Usr_Pwd      : i- DBÚ‘±•¶š—ñ [usr/pass@dbname Œ`®‚Å‚ ‚é‚±‚Æ]
+         inf1         : i-
+         inf2         : i-
+         OBat         : i- ˆ—ÊŞ¯ÁNo.
+return = 0            : normal
+         <>0          : DB error (ORACLE Error Code)
+date   = 2010/03/15   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+static int  SetOnlineMon(char* Usr_Pwd, char* Dtcls, char* Dftype, char* FileName, int Mode, int Reccnt)
+{
+EXEC SQL BEGIN DECLARE SECTION;
+  VARCHAR  ComUser[64];
+  VARCHAR  DbName[32];
+  VARCHAR  DTCLS[2+1];
+  VARCHAR  DFTYPE[6];
+  VARCHAR  DFILE[128];
+  int      ESTS;
+  int      RECCNT;
+EXEC SQL END   DECLARE SECTION;
+
+  EXEC SQL DECLARE MonDB DATABASE;
+
+  EXEC SQL WHENEVER SQLERROR CONTINUE;
+
+  SeparateDbName(Usr_Pwd, (char *)ComUser.arr, (char *)DbName.arr);
+  ComUser.len = strlen((char *)ComUser.arr);
+  DbName.len  = strlen((char *)DbName.arr);
+
+  EXEC SQL CONNECT :ComUser AT MonDB USING :DbName;
+  if ( V_SQLCODE ) {
+    return( V_SQLCODE );
+  }
+
+  VarcharCpy(DTCLS,  Dtcls,  strlen(Dtcls) );
+  VarcharCpy(DFTYPE, Dftype, strlen(Dftype));
+  VarcharInit( DFILE );
+  GetDFile((char*)DFILE.arr, FileName);
+  DFILE.len = strlen( (char*)DFILE.arr );
+  ESTS = (Mode ? 6 : 0);
+  RECCNT = Reccnt;
+
+  SetLogHead( Mode );
+  SetLogBody(0, 0, "Online‰Ò“®ƒ‚ƒjƒ^ •ÏX[%s:%s]", DFTYPE.arr, DFILE.arr);
+
+  EXEC SQL AT MonDB EXECUTE
+  BEGIN
+    MON_UpdMonitoring(:DTCLS, :DFTYPE, :DFILE, :ESTS, :RECCNT);
+  END;
+  END-EXEC;
+  if ( V_SQLCODE ) {
+    SetLogBody(0, 0, "Online‰Ò“®ƒ‚ƒjƒ^ •ÏXerror[%d]", V_SQLCODE);
+    EXEC SQL AT MonDB ROLLBACK WORK RELEASE;
+    return( 0 );
+  }
+
+  EXEC SQL AT MonDB COMMIT WORK RELEASE;
+  if ( V_SQLCODE ) {
+    EXEC SQL AT MonDB ROLLBACK WORK RELEASE;
+    return( 0 );
+  }
+
+  return( 0 );
+}
+
+
+/*--------------------------------------------------------
+name   = GetDFile()
+func   = ƒtƒ@ƒCƒ‹–¼(Šg’£q‚È‚µ)æ“¾
+io     = DFile       : -o : ƒtƒ@ƒCƒ‹–¼
+         FileName    : i- : æ‚İ‘ÎÛƒtƒ@ƒCƒ‹–¼(‹N“®‚Éw’è)
+return = 0           : normal
+         1           : unknown format
+date   = 2004/05/25  Written by T.Shirasaki(SE-No.229)
+---------------------------------------------------------*/
+int      GetDFile(char *DFile, char *FileName)
+{
+char    *cp;
+
+  strcpy(DFile, GetBaseName(FileName));
+  for ( cp = DFile; *cp != '\0'; cp++ ) {
+    if ( *cp == '.' ) {
+      *cp = '\0';
+    }
+  }
+
+  return( 0 );
+}
+
+
 /*--------------------------------------------------------
 name   = BackupFile()
-func   = ãƒãƒƒã‚¯ã‚¢ãƒƒãƒ—
+func   = ƒoƒbƒNƒAƒbƒv
 io     = local       : i- local file name
          remote      : i- remote file name
 return = 0           : normal
@@ -443,55 +885,48 @@ char     BaseName[64], BkupFile[256], Command[256];
 /*-----------------------------------------------------------------------------
 date   = 2001/06/14   Written by T.Shirasaki(SE No. 229)
 
-ãƒ»statusé–¢é€£ã®å¤‰æ•°ã¯af033k.hå†…ã§å®šç¾©
-ãƒ»é–¢æ•°åã«sysã¤ã„ã¦ã„ãŸã‚‰af033.hã®sysæ§‹é€ ä½“å‚ç…§ã—ã¦ã„ã‚‹
-ãƒ»
-
 -----------------------------------------------------------------------------*/
 int      main(argc, argv)
 int      argc;
 char    *argv[];
 {
 
-  /* ---------
-   SetSysStatus() --> sysã¨ã„ã†æ§‹é€ ä½“ã®statusã¨ã„ã†ãƒ¡ãƒ³ãƒã«å¼•æ•°ã‚’ä»£å…¥ã—ã¦ã„ã‚‹
-   Initiate() --> func:åˆæœŸåŒ–é–¢æ•°ã€‚ãã®å¾ŒGetArgument()ã§èµ·å‹•å¼•æ•°å‡¦ç†
-   --------- */
   SetSysStatus( Initiate(argc, argv) );
 
   while( (GetSysStatus() != STS_ERR) && (GetSysStatus() != STS_END) ) {
     switch( GetSysStatus() ) {
 
-     case STS_WAIT   : /* loginå†è©¦è¡Œå¾…ã¡é–¢æ•° */
+     case STS_WAIT   : /* loginÄsŠÖ” */
       SetSysStatus( WaitAndRollback() );
       break;
 
-     case STS_LOGIN  : /* oracle login é–¢æ•° */
+     case STS_LOGIN  : /* oracle login ŠÖ” */
       SetSysStatus( LoginToOracle() );
       break;
 
 
-      /* -- äºŒé‡èµ°è¡Œãƒã‚§ãƒƒã‚¯å‡¦ç†
+      /* -- “ñd‘–sƒ`ƒFƒbƒN */
      case STS_EXCL   :
       SetSysStatus( Exclusive() );
       break;
-     */
 
 
-     case STS_READ   : /* ã“ã“ãŒãƒ‡ãƒ¼ã‚¿èª­ã¿è¾¼ã¿å‡¦ç† */
+     case STS_READ   : /* ƒf[ƒ^“Ç‚İ‚İˆ— */
       SetSysStatus( ReadData() );
       break;
 
-    /*
+      /* ƒCƒ“ƒT[ƒgˆ—
      case STS_INSERT :
       SetSysStatus( InsertData(&(sys.Data)) );
       break;
+      */
 
 
      case STS_DEXCL  :
       SetSysStatus( DExclusive() );
       break;
-    */
+
+
      default     :
       ;
     }
@@ -499,6 +934,6 @@ char    *argv[];
 
   Terminate();
   SetLogHead(0);
-  SetLogBody(LOG_DSP, 0, "_/_/_/ %s çµ‚äº†", APP_JNAME);
+  SetLogBody(LOG_DSP, 0, "_/_/_/ %s I—¹", APP_JNAME);
   exit( GetSysExitCode() );
 }
