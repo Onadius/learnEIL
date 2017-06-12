@@ -20,8 +20,9 @@ func   =
 io     =
 return =
 date   = 2005/05/27  Created
+
 --------------------------------------------------------*/
-void  EILCopyTable( TAB_DATA *Data, OFEILS *sRec, OFEILD *dRec, char *Vend, char *custcd )
+void  EILCopyTable( TAB_DATA *Data, OFEILD *dRec, char *Vend, char *custcd )
 {
 char     Wrk[64];
 int      len;
@@ -29,12 +30,38 @@ int      len;
   strcpy(  Data->rcvdst,  "EIL" );
   StsnCpy( Data->custcd,  custcd,     LEN_EILS_S04 );
   StsnCpy( Data->ojan,    dRec->D05,  LEN_EILD_D05 );
+
+  printf("data_D : %s\n", Data->ojan) ;
+
   Data->cno  = -1;
   Data->pno  = Atoi( dRec->D06, LEN_EILD_D06 );
   Data->pno9 = -1;
   Data->jpno = -1;
   Data->zpno = -1;
   Data->npno = -1;
+}
+
+
+/*--------------------------------------------------------
+Name   = EILCopySTable()
+func   =
+io     =
+return =
+date   = 2017/06/09
+
+flag == 7のときのヘッダ(s)データ格納処理
+--------------------------------------------------------*/
+void  EILCopySTable( TAB_DATA *Data, OFEILS *sRec, char *custCD, char *cencd, char *sdate, char *custcd )
+{
+char     Wrk[64];
+int      len;
+
+  strcpy(  Data->rcvdst,  "EIL" );
+  StsnCpy( Data->custcd,  custCD,     LEN_EILS_S04 );
+  StsnCpy( Data->cencd,  cencd,     LEN_EILS_S03 );
+
+  printf("sRec-custcd : %s\n", sRec->S04) ;
+
 }
 
 
@@ -45,6 +72,7 @@ CHECK_TABLE  EILTable[] = {
   {'E', "SE "},
   {'\0', NULL }
 };
+
 
 /*--------------------------------------------------------
 Name   = EILGetFileRecord()
@@ -84,21 +112,30 @@ char         Buf[LEN_EILFILE_RECORD + 1]; /* レコード格納 */
 
       case RECID_EILS : /* "S"ヘッダーの場合 */
 
+        /*  ???  */
+        memset( sRec, 0, sizeof( OFEILS ) );
+        memcpy( sRec, Buf, sizeof( OFEILS ) );
+
         /* 初期化 */
         memset( custcd, 0, sizeof( custcd ) );
         memset( cencd, 0, sizeof( cencd ) );
         memset( sdate, 0, sizeof( sdate ) );
         memset( stime, 0, sizeof( stime ) );
 
-        /* データ格納処理をコーディングする必要あるな・・・ ↓*/
-        /* ヘッダ(S)各値を各引数に代入 */
+        /* ヘッダ(S)各値を各引数に代入.第二引数 = 文字列アドレス */
         memcpy( custcd, ( Buf + LEN_EILS_S01 + LEN_EILS_S02 + LEN_EILS_S03 ), LEN_EILS_S04 );
         memcpy( cencd, ( Buf + LEN_EILS_S01 + LEN_EILS_S02 ), LEN_EILS_S03 );
         memcpy( sdate, ( Buf + LEN_EILS_S01 + LEN_EILS_S02 + LEN_EILS_S03 + LEN_EILS_S04 ), LEN_EILS_S05 );
         memcpy( stime, ( Buf + LEN_EILS_S01 + LEN_EILS_S02 + LEN_EILS_S03 + LEN_EILS_S04 + LEN_EILS_S05), LEN_EILS_S06 );
 
+        /* sRecの構造体にデータ格納 */
+        strcpy(sRec->S03, cencd) ;
+        strcpy(sRec->S04, custcd) ;
+        strcpy(sRec->S05, sdate) ;
+        strcpy(sRec->S06, stime) ;
+
         /* 出力確認 */
-        printf("Buf_after : %s\n", Buf) ;
+        printf("Buf : %s\n", Buf) ;
         printf("custcd : %s\n", custcd);
         printf("cencd : %s\n", cencd);
         printf("sdate : %s\n", sdate);
@@ -108,17 +145,17 @@ char         Buf[LEN_EILFILE_RECORD + 1]; /* レコード格納 */
         PrevType = Buf[0];
 
         /* EILCopyTable()へのフラグ立てる */
-        *dFlg = 1;
+        *dFlg = 7;
         sys.Count++;
 
         break;
 
       case RECID_EILD :
+
         memset( dRec, 0, sizeof( OFEILD ) );
-        /*memcpy関数は指定バイト数分の値を第一引数にコピーする*/
         memcpy( dRec, Buf, sizeof( OFEILD ) );
         PrevType = Buf[0];
-        *dFlg = 7;
+        *dFlg = 1;
         sys.Count++;
         break;
 
@@ -166,7 +203,7 @@ char         sdate[LEN_EILS_S05 + 1] ; /* ファイルヘッダ(S):送信データ作成日付 *
 char         stime[LEN_EILS_S06 + 1] ; /* ファイルヘッダ(S):送信データ作成日時刻 */
 
 
-  /*** ※※※※※　通信制御上、Dftypeが替わってくるのでここで戻す　※※※※※ ***/
+  /*** ※※※※※ 通信制御上、Dftypeが替わってくるのでここで戻す ※※※※※ ***/
   /** Modified by M.Nariyama(SE-No.325)  (2012.08.13)スギ薬局(関東DC)対応 **/
 
   /*読み込みファイル拡張子の格納*/
@@ -188,15 +225,28 @@ char         stime[LEN_EILS_S06 + 1] ; /* ファイルヘッダ(S):送信データ作成日時刻
 
   /* -- 以降関数超重要 -- */
   while( ( Ret = EILGetFileRecord( FileName, &sRec, &dRec, custcd, cencd, sdate, stime, &dFlg ) ) > 0 ) {
-    if( ( dFlg == 1 || dFlg == 7 ) && strlen( custcd ) ){
+    if( ( dFlg == 1 || dFlg == 7 )  ){ /*&& strlen( custcd )*/
       memset( &Data, 0, sizeof( TAB_DATA ) );
-      EILCopyTable( &Data, &sRec, &dRec, sys.Vend, custcd );
-      if ( AddDataQue(Prim, &Data) ) {
-        return( -1 );
+
+      /* Dの時 */
+      if( dFlg == 1 ) {
+        EILCopyTable( &Data, &dRec, sys.Vend, custcd );
+        if ( AddDataQue(Prim, &Data) ) {
+          return( -1 );
+        }
+      }
+
+      /* S(ヘッダ)の時 */
+      else if( dFlg == 7 ) {
+        EILCopySTable( &Data, &sRec, custcd, cencd, sdate, stime );
+        if ( AddDataQue(Prim, &Data) ) {
+          return( -1 );
+        }
       }
     }
     dFlg = 0;
   }
+
   if ( Ret < 0 ) {
     return( Ret );
   }
