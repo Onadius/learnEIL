@@ -60,26 +60,27 @@ typedef struct {
 } OFEIL;
 
 
-/***  伝票明細  ***/
+/***  ヘッダファイル  ***/
 typedef struct {
-  char  S01[LEN_EILD_D01];           /* レコード区分         */
-  char  S02[LEN_EILD_D02];           /* データ区分           */
-  char  S03[LEN_EILD_D03];           /* 送信元コード         */
-  char  S04[LEN_EILD_D04];           /* 送信先コード         */
-  char  S05[LEN_EILD_D05];           /* 送信データ作成日付    */
-  char  S06[LEN_EILD_D06];           /* 送信データ作成時刻    */
-  char  S07[LEN_EILD_D07];           /* 予備                 */
+  char  S01[LEN_EILS_S01 + 1];           /* レコード区分         */
+  char  S02[LEN_EILS_S02 + 1];           /* データ区分           */
+  char  S03[LEN_EILS_S03 + 1];           /* 送信元コード         */
+  char  S04[LEN_EILS_S04 + 1];           /* 送信先コード         */
+  char  S05[LEN_EILS_S05 + 1];           /* 送信データ作成日付    */
+  char  S06[LEN_EILS_S06 + 1];           /* 送信データ作成時刻    */
+  char  S07[LEN_EILS_S07 + 1];           /* 予備                 */
 } OFEILS;
+
 
 /***  伝票明細  ***/
 typedef struct {
-  char  D01[LEN_EILD_D01];           /* レコード区分         */
-  char  D02[LEN_EILD_D02];           /* データ区分           */
-  char  D03[LEN_EILD_D03];           /* DCコード             */
-  char  D04[LEN_EILD_D04];           /* 在庫確定日           */
-  char  D05[LEN_EILD_D05];           /* 商品コード           */
-  char  D06[LEN_EILD_D06];           /* 在庫数量             */
-  char  D07[LEN_EILD_D07];           /* 予備                 */
+  char  D01[LEN_EILD_D01 + 1];           /* レコード区分         */
+  char  D02[LEN_EILD_D02 + 1];           /* データ区分           */
+  char  D03[LEN_EILD_D03 + 1];           /* DCコード             */
+  char  D04[LEN_EILD_D04 + 1];           /* 在庫確定日           */
+  char  D05[LEN_EILD_D05 + 1];           /* 商品コード           */
+  char  D06[LEN_EILD_D06 + 1];           /* 在庫数量             */
+  char  D07[LEN_EILD_D07 + 1];           /* 予備                 */
 } OFEILD;
 
 
