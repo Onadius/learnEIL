@@ -29,6 +29,7 @@
 #define  DFTYPE_JR1          "JR1"     /* Added by M.Nariyama(SE No.325)  (2007.01.04) */
 #define  DFTYPE_CO1          "CO1"     /* Added by M.Nariyama(SE No.325)  (2007.12.04) */
 #define  DFTYPE_SGM          "SGM"     /* Added by H.Michibayashi(SE-No.388)  (2014.05.12) */
+#define  DFTYPE_EIL          "EIL"
 
 /* system mode */
 #define  MODE_RDTXT          0x0001
@@ -71,6 +72,8 @@
 #define  LEN_DATA_RCVDST      3       /* CENCD          */
 #define  LEN_DATA_CUSTCD     12       /* CUSTCD         */
 #define  LEN_DATA_CENCD       6       /* CENCD          */
+#define  LEN_S_DATE           8       /* 送信データ作成日付   */
+#define  LEN_S_TIME           6       /* 送信データ作成時刻   */
 #define  LEN_DATA_OJAN       13       /* OJAN           */
 #define  LEN_DATA_VJAN       13       /* VJAN           */
 #define  LEN_DATA_CUGDCD     15       /* CUGDCD         */
@@ -86,6 +89,8 @@ struct _TAB_DATA{
   char      rcvdst[LEN_DATA_RCVDST + 1];     /* RCVDST          */
   char      custcd[LEN_DATA_CUSTCD + 1];     /* CUSTCD          */
   char      cencd[LEN_DATA_CENCD + 1];       /* CENCD           */
+  char      sdate[LEN_S_DATE + 1] ;
+  char      stime[LEN_S_TIME + 1] ;
   char      ojan[LEN_DATA_OJAN + 1];         /* OJAN            */
   char      vjan[LEN_DATA_VJAN + 1];         /* VJAN            */
   char      cugdcd[LEN_DATA_CUGDCD + 1];     /* CUGDCD          */

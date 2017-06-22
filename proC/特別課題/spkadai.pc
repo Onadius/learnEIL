@@ -386,7 +386,7 @@ int       i, Count = 0;
   SetLogBody(1, 0, "%s[%s]", status, Message);
 
   memset(Inf1, 0, sizeof(Inf1));
-  printf("SetAFSのやつだよ\n");
+
 
   if ( SetDBLog(sys.UserPass, APP_NAME, APP_JNAME, Inf1, Inf2,
                 sys.OBat, sys.Count, sys.Vend, "", sys.Sdday, 0) ) {
@@ -685,7 +685,7 @@ char     Message[256];
      default :  /* 正常 */
       SetAFS73("ﾃﾞｰﾀ読込終了", "", sys.FileName);
       /* RetValue = STS_INSERT; */
-      RetValue = STS_DEXCL ;
+      RetValue = STS_INSERT; ;
     }
   }
   else { /* workより取込み */
@@ -849,6 +849,253 @@ char    *cp;
 }
 
 
+/*-----------------------------------------------------------------------------
+name   = InsertAFW56Z()
+func   = 在庫報告データ登録
+io     = Dat          :  i-
+return = 0            :  normal
+         -2           :  DB error
+date   = 2002/07/03   Written by T.Shirasaki(SE No. 229)
+-----------------------------------------------------------------------------*/
+int      InsertAFW56Z(TAB_DATA* Data)
+{
+  Obat   = sys.OBat;
+  VarcharCpy3(rcvdst,  Data->rcvdst,  strlen(Data->rcvdst) );
+  VarcharCpy3(custcd,  Data->custcd,  strlen(Data->custcd) );
+  VarcharCpy3(cencd,   Data->cencd,   strlen(Data->cencd)  );
+
+  if ( !strncmp(Data->ojan, "00000", 5) ) {
+    VarcharCpy3(ojan,  (Data->ojan + 5), (strlen(Data->ojan) - 5));
+  }
+  else {
+    VarcharCpy3(ojan,  Data->ojan,    strlen(Data->ojan)   );
+  }
+
+
+  /* Modified by M.Nariyama(SE No.325)  (2008.03.24) */
+  /* 潜在不良(shortは32768までなので在庫数過大だと－として誤動作) */
+#ifdef __DEL_DEL_DEL__
+  cno    = Data->cno;   ind_cno  = cno;
+  pno    = Data->pno;   ind_pno  = pno;
+  pno9   = Data->pno9;  ind_pno9 = pno9;
+  jpno   = Data->jpno;  ind_jpno = jpno;
+  zpno   = Data->zpno;  ind_zpno = zpno;
+  npno   = Data->npno;  ind_npno = npno;
+#else  /*__DEL_DEL_DEL__*/
+  cno    = Data->cno;
+  pno    = Data->pno;
+  pno9   = Data->pno9;
+  jpno   = Data->jpno;
+  zpno   = Data->zpno;
+  npno   = Data->npno;
+  if ( cno  > 0 ) { ind_cno  = 0; } else { ind_cno  = cno;  }
+  if ( pno  > 0 ) { ind_pno  = 0; } else { ind_pno  = pno;  }
+  if ( pno9 > 0 ) { ind_pno9 = 0; } else { ind_pno9 = pno9; }
+  if ( jpno > 0 ) { ind_jpno = 0; } else { ind_jpno = jpno; }
+  if ( zpno > 0 ) { ind_zpno = 0; } else { ind_zpno = zpno; }
+  if ( npno > 0 ) { ind_npno = 0; } else { ind_npno = npno; }
+#endif /*__DEL_DEL_DEL__*/
+
+  EXEC SQL
+    INSERT INTO
+        tmp_56z_170605_1(IDAT, OBAT, CLS, RCVDST, CUSTCD, CENCD,  JAN, PNO,  PNO9)
+        VALUES(SYSDATE, :Obat, '1', :rcvdst, :custcd, :cencd, :vjan, :pno, :pno9);
+  if ( V_SQLCODE ) {
+    SetLogHead( V_SQLCODE );
+    SetLogBody(1, 0, "INSERT ERROR(tmp_56z_170605_1:%s)", V_SQLERRMC);
+    SetLogBody(0, 0, "[%.0f] [%s(%d)] [%s(%d)]", Obat, custcd.arr, custcd.len, ojan.arr, ojan.len );
+    SetLogBody(0, 0, "[%d] [%d] [%d] [%d] [%d]", pno, pno9, jpno, zpno, npno );
+    return( -1 );
+  }
+  return( 0 );
+}
+
+
+
+/*-----------------------------------------------------------------------------
+name   = InsertData()
+func   = 取込み
+io     = Prim         :  i-
+return = 次ｽﾃｰﾀｽ
+date   = 2002/07/03   Written by T.Shirasaki(SE No. 229)
+         2003/09/09   Updated by SE-No.229  for 配達取消ﾁｪｯｸ
+         2007/01/04   Updated by M.Nariyama (SE No.325)
+         2015/05/07   Updated by N.Miyazaki (SE No.400) for 在庫0作成処理追加
+-----------------------------------------------------------------------------*/
+int      InsertData(TAB_DATA* Prim)
+{
+EXEC SQL BEGIN DECLARE SECTION;
+  VARCHAR  custcd[13];
+  int      lStatus;
+  VARCHAR  lMessage[1024];
+EXEC SQL END   DECLARE SECTION;
+TAB_DATA *Elem;
+TAB_DATA *Tmp;
+int       ret;
+MESP      Mesp;
+char      HostName[20];
+
+  SetAFS73("取込み中", "", sys.FileName);
+
+  EXEC SQL
+    SELECT TO_CHAR(SYSDATE,'YYYYMMDDHH24MISS')
+      INTO :IDat
+      FROM DUAL;
+  if ( V_SQLCODE ) {
+    SetLogHead( V_SQLCODE );
+    SetLogBody(1, 0, "sysdate取得ｴﾗｰ(%70.70s)", V_SQLERRMC);
+    SetAFS73("ﾃﾞｰﾀ取込みｴﾗｰ", "ﾃﾞｰﾀの取込みに失敗しました", sys.FileName);
+    goto LB_Error;
+  }
+  VarcharNullAdd( IDat );
+
+  /*** Modified by SE281 2005.06.14 削除条件SDDAY＋CUSTCD                  ***/
+  /*EXEC SQL DELETE FROM AFW56Z                                              */
+  /*          WHERE SDDAY=(SELECT SDDAY FROM AXM99 WHERE ID='1') AND CLS='1';*/
+  /*switch( V_SQLCODE ) {                                                    */
+  /*  case 0:                                                                */
+  /*  case 1403:                                                             */
+  /*    break;                                                               */
+  /*  default:                                                               */
+  /*    SetAFS73("ﾃﾞｰﾀ取込ｴﾗｰ", "ﾃﾞｰﾀの削除に失敗しました", sys.FileName);   */
+  /*    goto LB_Error;                                                       */
+  /*}                                                                        */
+  /***************************************************************************/
+
+  /*** Modified by SE281 2005.05.27 ***/
+  VarcharInit( custcd );
+  for ( Elem = Prim->Next; Elem != Prim; Elem = Elem->Next ) {
+    if( !strcmp( sys.Dftype, DFTYPE_SNK ) ||
+        !strcmp( sys.Dftype, DFTYPE_NB0 ) ) {
+      if( strcmp( custcd.arr, Elem->custcd ) ){
+
+        VarcharCpy( custcd, Elem->custcd, strlen( Elem->custcd ) );
+
+        EXEC SQL DELETE FROM AFW56Z
+                  WHERE SDDAY=(SELECT SDDAY FROM AXM99 WHERE ID='1')
+                    AND CUSTCD=:custcd
+                    AND CLS='1';
+        switch( V_SQLCODE ) {
+          case 0:
+          case 1403:
+            break;
+          default:
+            SetAFS73("ﾃﾞｰﾀ取込ｴﾗｰ", "ﾃﾞｰﾀの削除に失敗しました", sys.FileName);
+            goto LB_Error;
+        }
+      }
+    }
+
+  /*** Modified by R.Takahashi(SE-No.361) 2012.01.20 コスモス広川対応      ***/
+  /*if ( InsertAFW56Z(Elem) ) {                                              */
+  /*  SetAFS73("ﾃﾞｰﾀ取込みｴﾗｰ", "ﾃﾞｰﾀの取込みに失敗しました", sys.FileName); */
+  /*  goto LB_Error;                                                         */
+  /*}                                                                        */
+  /***************************************************************************/
+
+    if( !strcmp( sys.Dftype, DFTYPE_EIL ) ){
+      ret = InsertAFW56Z(Elem);
+    }
+
+    if ( ret < 0 ) {
+      SetAFS73("ﾃﾞｰﾀ取込みｴﾗｰ", "ﾃﾞｰﾀの取込みに失敗しました", sys.FileName);
+      goto LB_Error;
+    }
+  }
+
+  switch( sys.Cls ) {
+   case '1' : /** 受注残数更新処理起動 **/
+    Obat = sys.OBat;
+    EXEC SQL EXECUTE
+      BEGIN
+        af86ms( :Obat );
+      END;
+    END-EXEC;
+    if ( V_SQLCODE ) {
+      SetLogHead( V_SQLCODE );
+      SetLogBody(LOG_DSP, 0, "受注残更新失敗[%.0f](%s)", Obat, V_SQLERRMC);
+      goto LB_Error;
+    }
+    SetLogHead( 0 );
+    SetLogBody(0, 0, "受注残更新終了[%.0f]", Obat);
+    break;
+
+   case '2' : /** 在庫一覧自動印刷 **/
+    SetLogHead( 0 );
+    SetLogBody(0, 0, "帳票発行[%.0f]", sys.OBat);
+
+    memset(&Mesp, ' ', sizeof(MESP));
+    Mesp.Type = 'S';
+    MempCpy(Mesp.TerminalID, GetHostName(HostName), LEN_MESP_TERMINALID);
+    sprintf(Mesp.Batno, "%*.0f", LEN_MESP_BATNO, sys.OBat);
+    memset(Mesp.Psid, '0', LEN_MESP_PSID);
+    Mesp.Erep = ' ';
+    Mesp.Inh2 = '2';
+    Mesp.Priority = '2';
+    Mesp.ProcessType = '1';
+    /** Modified by M.Nariyama(SE-No.325)  (2007.01.04) JR東日本 対応     **/
+    /** MempCpy(Mesp.Jname, "在庫一覧 ", LEN_MESP_JNAME);                 **/
+    /** sprintf(Mesp.Path, "af70yx -G%s -R -V -M -S -E -P0", sys.Dftype); **/
+    if ( !strcmp(sys.Dftype, DFTYPE_JR1) ) {
+      MempCpy(Mesp.Jname, "棚卸情報 ", LEN_MESP_JNAME);
+      sprintf(Mesp.Path, "af70yx -G%s -R -V -M -S -E -P -Z", sys.Dftype);
+    }
+    else {
+      MempCpy(Mesp.Jname, "在庫一覧 ", LEN_MESP_JNAME);
+      sprintf(Mesp.Path, "af70yx -G%s -R -V -M -S -E -P0", sys.Dftype);
+    }
+    memcpy(lMessage.arr, &Mesp, sizeof(MESP));
+    lMessage.arr[sizeof(MESP)] = '\0';
+    lMessage.len = sizeof(MESP);
+
+    EXEC SQL EXECUTE
+    BEGIN
+      DBMS_Pipe.Pack_Message(:lMessage);
+      :lStatus := DBMS_Pipe.Send_Message('MESP_CNSL', 10);
+    END;
+    END-EXEC;
+    if ( V_SQLCODE ) {
+      SetLogHead( lStatus );
+      SetLogBody(0, 0, "帳票発行失敗[%s]", (char*)lMessage.arr);
+    }
+    break;
+
+   /** added by N.Miyazaki(SE-No.400) for 在庫0作成処理追加 **/
+   case '3' : /** 在庫0処理起動 **/
+    EXEC SQL EXECUTE
+      BEGIN
+        AF84BS( :Obat );
+      END;
+    END-EXEC;
+    if ( V_SQLCODE ) {
+      SetLogHead( V_SQLCODE );
+      SetLogBody( LOG_DSP, 0, "在庫0作成処理失敗[%.0f](%s)", Obat, V_SQLERRMC );
+      goto LB_Error;
+    }
+    SetLogHead( 0 );
+    SetLogBody(0, 0, "在庫0作成処理終了[%.0f]", Obat);
+    break;
+  }
+
+  EXEC SQL COMMIT WORK;
+  if ( V_SQLCODE ) {
+    SetAFS73("ﾃﾞｰﾀ取込ｴﾗｰ", "更新ﾃﾞｰﾀの確定に失敗しました", sys.FileName);
+    goto LB_Error;
+  }
+
+  return( STS_DEXCL );
+
+LB_Error:
+  EXEC SQL ROLLBACK WORK;
+  SetSysExitCode( EXT_DBERR );
+  return( STS_DEXCL );
+}
+
+
+
+
+
+
 /*--------------------------------------------------------
 name   = BackupFile()
 func   = バックアップ
@@ -915,11 +1162,10 @@ char    *argv[];
       SetSysStatus( ReadData() );
       break;
 
-      /* インサート処理
+      /* インサート処理 */
      case STS_INSERT :
       SetSysStatus( InsertData(&(sys.Data)) );
       break;
-      */
 
 
      case STS_DEXCL  :
