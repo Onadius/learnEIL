@@ -899,7 +899,7 @@ int      InsertAFW56Z(TAB_DATA* Data)
   EXEC SQL
     INSERT INTO
         tmp_56z_170605_1(IDAT, OBAT, CLS, RCVDST, CUSTCD, CENCD,  JAN, PNO,  PNO9)
-        VALUES(SYSDATE, :Obat, '1', :rcvdst, :custcd, :cencd, :vjan, :pno, :pno9);
+        VALUES(SYSDATE, :Obat, '1', :rcvdst, :custcd, :cencd, :ojan, :pno, :pno9);
   if ( V_SQLCODE ) {
     SetLogHead( V_SQLCODE );
     SetLogBody(1, 0, "INSERT ERROR(tmp_56z_170605_1:%s)", V_SQLERRMC);

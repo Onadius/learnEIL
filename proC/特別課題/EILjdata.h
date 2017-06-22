@@ -43,7 +43,8 @@
 #define LEN_EILD_D04         8       /* 在庫確定日           */
 #define LEN_EILD_D05        13       /* 商品コード           */
 #define LEN_EILD_D06         7       /* 在庫数量             */
-#define LEN_EILD_D07        27       /* 予備                 */
+#define LEN_EILD_D07         7       /* 在庫数量             */
+#define LEN_EILD_D08        20       /* 予備                 */
 
 /***  トレーラ  ***/
 #define LEN_EILE_E01         1       /* レコード区分         */
@@ -80,7 +81,8 @@ typedef struct {
   char  D04[LEN_EILD_D04 + 1];           /* 在庫確定日           */
   char  D05[LEN_EILD_D05 + 1];           /* 商品コード           */
   char  D06[LEN_EILD_D06 + 1];           /* 在庫数量             */
-  char  D07[LEN_EILD_D07 + 1];           /* 予備                 */
+  char  D07[LEN_EILD_D07 + 1];           /* 在庫数量             */
+  char  D08[LEN_EILD_D08 + 1];           /* 予備                 */
 } OFEILD;
 
 

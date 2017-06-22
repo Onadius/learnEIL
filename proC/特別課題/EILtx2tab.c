@@ -14,6 +14,8 @@
 extern SYS   sys;
 extern char  gsSltext[];
 
+char BUFF[LEN_EILFILE_RECORD + 1] ;
+
 /*--------------------------------------------------------
 Name   = EILCopyTable()
 func   =
@@ -26,20 +28,50 @@ void  EILCopyTable( TAB_DATA *Data, OFEILS *sRec, OFEILD *dRec, char *Vend, char
 {
 char     Wrk[64];
 int      len;
+char     txt1[LEN_EILD_D05 + 1] ;
+char     txt2[LEN_EILD_D06 + 1] ;
+char     txt3[LEN_EILD_D07 + 1] ;
+
+
 
     strcpy(  Data->rcvdst,  "EIL" );
+    strcpy( Data->cencd, sRec->S03) ;
     StsnCpy( Data->custcd,  custcd,     LEN_EILS_S04 );
-    StsnCpy( Data->ojan,    dRec->D05,  LEN_EILD_D05 );
+    /*
+    StsnCpy( Data->ojan,    dRec->D05,  LEN_EILD_D05 - 4 );
 
     printf("custcd : %s\n", Data->custcd) ;
     printf("ojan : %s\n", Data->ojan) ;
 
-    Data->cno  = -1;
     Data->pno  = Atoi( dRec->D06, LEN_EILD_D06 );
-    Data->pno9 = -1;
-    Data->jpno = -1;
-    Data->zpno = -1;
-    Data->npno = -1;
+    Data->pno9 = Atoi( dRec->D07, LEN_EILD_D07 );
+
+    printf("pno :  %d\n pno9 : %d\n", Data->pno, Data->pno9) ;
+
+    */
+
+    memset( txt1, 0, sizeof( txt1 ) );
+    memset( txt2, 0, sizeof( txt2 ) );
+    memset( txt3, 0, sizeof( txt3 ) );
+
+    /* ヘッダ(S)各値を各引数に代入.第二引数 = 文字列アドレス */
+    memcpy( txt1, ( BUFF + LEN_EILD_D01 + LEN_EILD_D02 + LEN_EILD_D03 + LEN_EILD_D04), LEN_EILD_D05 );
+    memcpy( txt2, ( BUFF + LEN_EILD_D01 + LEN_EILD_D02 + LEN_EILD_D03 + LEN_EILD_D04 + LEN_EILD_D05 ), LEN_EILD_D06 );
+    memcpy( txt3, ( BUFF + LEN_EILD_D01 + LEN_EILD_D02 + LEN_EILD_D03 + LEN_EILD_D04 + LEN_EILD_D05 + LEN_EILD_D06), LEN_EILD_D07 );
+
+
+    /* -- dRecの構造体にデータ格納 -- */
+    strcpy(dRec->D05, txt1) ;
+    strcpy(dRec->D06, txt2) ;
+    strcpy(dRec->D07, txt3) ;
+
+    /* -- DATA構造体への格納 -- */
+    strcpy(Data->ojan, dRec->D05) ;
+
+    Data->pno  = Atoi( dRec->D06, LEN_EILD_D06 );
+    Data->pno9 = Atoi( dRec->D07, LEN_EILD_D07 );
+
+    printf("jan : %s\npno :  %s\npno9 : %s\n", dRec->D05, dRec->D06, dRec->D07) ;
   }
 
 
@@ -127,6 +159,7 @@ char         Buf[LEN_EILFILE_RECORD + 1]; /* レコード格納 */
         memset( dRec, 0, sizeof( OFEILD ) );
         memcpy( dRec, Buf, sizeof( OFEILD ) );
 
+        strcpy(BUFF, Buf) ;
         printf("DREC : %s\n", Buf);
 
         PrevType = Buf[0];
