@@ -61,10 +61,10 @@
 #define  FLG_DEL              3
 
 #define  LOG_DSP              1
-#define  APP_NAME            "AF033K"
+#define  APP_NAME            "AF03mK"
 #define  APP_JNAME           "ç›å…ïÒçêéÊçû"
 #define  DEF_LOG_SIZE        (1024 * 1024 * 1)
-#define  LOG_NAME            "/ryutu/spool/af033k.log"
+#define  LOG_NAME            "/ryutu/spool/af03mk.log"
 
 #define  LEN_DATA_ERR         2       /* ¥◊∞∫∞ƒﬁ         */
 
