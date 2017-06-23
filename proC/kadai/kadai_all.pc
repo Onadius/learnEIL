@@ -83,7 +83,6 @@ int MainProcedure() {
       return( -2 );
     }
 
-
     /* -- DECLARE cursor CUR1 -- */
     EXEC SQL DECLARE CUR1 CURSOR FOR miku ;
     if ( V_SQLCODE ) {
@@ -91,6 +90,8 @@ int MainProcedure() {
       printf("Declare Cursor Error\n");
       return( -2 );
     }
+
+
 
     /* open cursor CUR1 */
     EXEC SQL OPEN CUR1;
@@ -297,7 +298,7 @@ char     wrk[24];
         break;
 
        default  :
-        ;
+       break ;
       }
     }
     else {
@@ -434,14 +435,13 @@ void outFile() {
   }
 
     /* -- output file -- */
-    fprintf(opnfile, "%s  %s  %s  %s  %s  %s  %s\n",
+    fprintf(opnfile, "%-5s  %-4s  %-4s  %-15s  %-15s  %-5s  %-4s\n",
       cu_cd.arr, cus_cd.arr, cusp_cd.arr, sp_nm.arr, sp_ad.arr,
       sp_tel.arr, exp.arr) ;
 
     /* file pointa close */
     fclose(opnfile) ;
 }
-
 
 
 /*--------------------------------------------------------
@@ -453,7 +453,7 @@ date   = 2017.06.01
 ---------------------------------------------------------*/
 void confirmOut() {
 
-  printf("There are targets of ...\n%s  %s  %s  %s  %s  %s  %s\n",
+  printf("There are targets of ...\n%-5s  %-4s  %-4s  %-5s  %-5s  %-5s  %-4s\n",
     cu_cd.arr, cus_cd.arr, cusp_cd.arr, sp_nm.arr, sp_ad.arr,
     sp_tel.arr, exp.arr);
 

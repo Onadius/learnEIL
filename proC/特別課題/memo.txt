@@ -1,0 +1,3 @@
+・期限6/9
+・参考:af033k.pc (main関数)
+・Makefileについて→csrcの部分は.EILの拡張子のみを読み込むreadtxt.cのみ記述

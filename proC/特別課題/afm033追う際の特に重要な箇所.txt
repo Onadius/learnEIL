@@ -1,0 +1,26 @@
+\\yoda\ohki\kensyu\c\src\afm033追う際の特に重要な箇所.txt
+
+【af033.pc】
+　741       GetDataFromText
+　
+【readtxt.c】
+　316～332  ConvFunction
+　          →識別子毎の専用処理を呼ぶ
+　          　例)NB0TextToTable
+　          　
+【nb0tx2tab.c】
+　119～136  NB0GetFileRecord
+　56～109
+　137～139  NB0CopyTable
+　24～38
+　140～160
+
+【af033.pc】
+　764～766  
+　1076      InsertAFW56Z
+　935～988
+　1159～1165
+　1180      Terminate
+　1182～1193
+　838～859  BackupFile
+　1224～1226

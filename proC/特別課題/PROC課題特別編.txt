@@ -1,0 +1,46 @@
+PROC課題特別編
+
+①ファイルを取込、在庫ワークのTMPテーブルにデータを格納せよ
+DB格納仕様：\\nasa\public\users\kensyu\C\研修用テーブル定義.xlsx
+ファイルフォーマット：\\nasa\public\users\kensyu\C\在庫報告データ(EIL).xls
+
+条件
+  ・取込ファイルの識別子にてフォーマット判定を行う
+  ・ファイルの識別子を"EIL"とする
+  ・ファイルフォーマットは固定長のフォーマットを指定する
+  ・起動方法：実行ファイル ohki/ryutu@ohkidb.world -f/kensyu/rtext/ファイル名
+  ・取込み後のPL/SQL実行は不要
+
+参考
+\\yoda\ohki\kensyu\c\src\af033k_sanko
+
+☆ヒント
+①参考を元に流れを理解
+②流れ図作成
+③参考の処理詳細を理解
+　(共通関数の用途用法を理解して使用)
+④参考を元にプログラム作成
+
+DBサーバ: yoda
+ユーザ/パス: ohki/ryutu
+
+☆プログラム格納場所
+\\yoda\ohki\kensyu\c\src\
+宮脇:af03mk
+江守:af03ek
+
+
+☆TMPテーブル
+宮脇:tmp_56z_170605_1
+江守:tmp_56z_170605_2
+
+tmp_56z_170605_1
+IDAT                      DATE             登録時間
+OBAT                      NUMBER(10)       受信単位バッチ番号
+CLS                       VARCHAR2(1)      データ区分
+RCVDST                    VARCHAR2(3)      受信先識別
+CUSTCD                    VARCHAR2(12)     取引先コード
+CENCD                     VARCHAR2(6)      センターコード
+JAN                       VARCHAR2(13)     JANコード
+PNO                       NUMBER(8)        ピース数
+PNO9                      NUMBER(8)        ピース数(不良品)
