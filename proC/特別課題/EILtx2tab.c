@@ -8,7 +8,7 @@
 /*********************************************************************/
 /* All right reserved. Copyright(C) 2000, EMORI Co,Ltd.              */
 /*********************************************************************/
-#include  "af033k.h"
+#include  "spkadai.h"
 #include  "EILjdata.h"
 
 extern SYS   sys;

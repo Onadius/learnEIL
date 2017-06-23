@@ -6,7 +6,7 @@
 /* History-.              2001/06/14   :   created by T.Shirasaki(SE-No.229) */
 /*                                                                           */
 /*****************************************************************************/
-#include "af033k.h"
+#include "spkadai.h"
 #include "sltext.h"
 
 extern SYS     sys;

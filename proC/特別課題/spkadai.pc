@@ -1,8 +1,8 @@
 /*****************************************************************************/
-/* af033k.pc :                                                               */
+/* spkadai.pc :                                                               */
 /*                                                                           */
 /* Notes-.        ç›å…ïÒçê√ﬁ∞¿éÊçûProg                                       */
-/*    Usage : af033k user/pass[@xxx] -f<file>                                */
+/*    Usage : spkadai user/pass[@xxx] -f<file>                                */
 /*                                                                           */
 /*    EXIT-> 0 : ê≥èÌ (ERRÇ»Çµ)                                              */
 /*           1 : Fatal Error                                                 */
@@ -13,7 +13,7 @@
 /*                                                                           */
 /*****************************************************************************/
 
-#include "af033k.h"
+#include "spkadai.h"
 
 /* using ERROR CORD */
 EXEC SQL INCLUDE SQLCA;
@@ -131,7 +131,7 @@ char     BatStr[11];
   }
 
   memset(Inf2, 0, 512);
-  sprintf(Inf2, "af033k %s -f%s", GetSysUserPass(), GetSysFileName());
+  sprintf(Inf2, "spkadai %s -f%s", GetSysUserPass(), GetSysFileName());
 
   if ( !strlen(GetSysUserPass()) || !strlen(GetSysFileName()) ) {
     return( FATALERROR );
@@ -899,7 +899,7 @@ int      InsertAFW56Z(TAB_DATA* Data)
   EXEC SQL
     INSERT INTO
         tmp_56z_170605_1(IDAT, OBAT, CLS, RCVDST, CUSTCD, CENCD,  JAN, PNO,  PNO9)
-        VALUES(SYSDATE, :Obat, '1', :rcvdst, :custcd, :cencd, :ojan, :pno, :pno9);
+        VALUES(SYSDATE, :Obat, '1', :rcvdst, :custcd, :cencd, :ojan, :pno / 10, :pno9 / 10);
   if ( V_SQLCODE ) {
     SetLogHead( V_SQLCODE );
     SetLogBody(1, 0, "INSERT ERROR(tmp_56z_170605_1:%s)", V_SQLERRMC);
