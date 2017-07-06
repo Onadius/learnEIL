@@ -16,7 +16,7 @@ SET SERVEROUTPUT ON
 
 DECLARE
   min_sal NUMBER := 0 ;
-  eromannga VARCHAR2(30) ;
+  eromannga VARCHAR2(30) ;  
 
 BEGIN
   select E.sal into min_sal

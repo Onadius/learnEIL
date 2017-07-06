@@ -24,7 +24,7 @@ DECLARE
 
 BEGIN
 
-  -- 表「emp」から取得した項目を、配列「emp_rec」に代入する
+  -- 表「emp」から取得した項目を、配列mikuに代入する
   select * bulk collect into miku from emp;
 
   for i in 1..miku.count loop
