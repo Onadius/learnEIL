@@ -1,6 +1,6 @@
-/*6.tmp2の�?ータで、EMP3にEMPNOが一致する行があった�?�合�?��?
-EMP3のTELをTMP2のTELに変更し、一致する行が無かった�?�合�?�
-EMP3にそ�?�行を追�?しなさい�?
+/*6.tmp2のデータで、EMP3にEMPNOが一致する行があった場合は、
+EMP3のTELをTMP2のTELに変更し、一致する行が無かった場合は
+EMP3にその行を追加しなさい。
 */
 
 DECLARE
@@ -11,7 +11,7 @@ DECLARE
     from
       tmp2;
   /*
-  カーソル�?:mikumiku : tmp2のempno(miku)とtel(mikutel)
+  カーソル名:mikumiku : tmp2のempno(miku)とtel(mikutel)
   */
 
   cursor rinrin is
@@ -21,13 +21,13 @@ DECLARE
     from
       emp3;
   /*
-  カーソル�?:rinrin : emp3のempno(rin)とtel(rintel)
+  カーソル名:rinrin : emp3のempno(rin)とtel(rintel)
   */
 
 BEGIN
-  for rec1 in mikumiku loop --tmp2.empnoに関して�?
-    for rec2 in rinrin loop --emp3.empnoに関して�?
-      if rec1.miku = rec2.rin THEN -- tmp2の�?ータで、EMP3にEMPNOが一致する行があった�?��?
+  for rec1 in mikumiku loop --tmp2.empnoに関して、
+    for rec2 in rinrin loop --emp3.empnoに関して、
+      if rec1.miku = rec2.rin THEN -- tmp2のデータで、EMP3にEMPNOが一致する行があった場合
         dbms_output.put_line(rec2.rin) ;
 
         UPDATE --EMP3のTELをTMP2のTELに変更
@@ -36,16 +36,16 @@ BEGIN
           emp3.tel = rec2.rintel
         WHERE
           emp3.empno = rec2.rin ;
-        exit ; --更新作業を一回行ったら、その時点でルー�?(rec2.rinでの)終�?
+        exit ; --更新作業を一回行ったら、その時点でループ(rec2.rinでの)終了
 
-      ELSE --一致する行が無かった�?��?, EMP3にそ�?��?(tmp2.tel)を追�?
+      ELSE --一致する行が無かった場合, EMP3にその行(tmp2.tel)を追加
 
         /*
-        5289642578のみが追�?されるため�?
-        以下�?�処�?は間違って�?る�?�ですが�?
-        原因を特定できな�?です�?
+        5289642578のみが追加されるため、
+        以下の処理は間違っているのですが、
+        原因を特定できないです。
         */
-        insert into   --EMP3にそ�?��?(tmp2.tel)を追�?
+        insert into   --EMP3にその行(tmp2.tel)を追加
           EMP3 (tel)
         values(
           rec2.rintel

@@ -1,19 +1,19 @@
---変更した内容の確定
---トランザクション = 作業単位
+--�ύX�������e�̊m��
+--�g�����U�N�V���� = ��ƒP��
 
 COMMIT ;
 
---暗黙のコミットを行っているコマンド
+--�Öق̃R�~�b�g���s���Ă���R�}���h
 ALTER, CREATE, DROP, GRANT, RENAME, REVOKE
 
 
---変更の取り消し
+--�ύX�̎�����
 ROLLBACK ;
 
---オブジェクト権限の付与
+--�I�u�W�F�N�g�����̕t�^
 GRANT SELECT ON EMP TO SMITH ;
 
---権限の取り消し
+--�����̎�����
 REVOKE SELECT ON EMP TO SMITH ;
 
 

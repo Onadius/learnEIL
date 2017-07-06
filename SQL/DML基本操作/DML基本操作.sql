@@ -1,38 +1,38 @@
---行の追加
---列無指定方法
+--�s�̒ǉ�
+--�񖳎w����@
 INSERT INTO EMP
 VALUES (
   7954, 'CARTER', 'CLEARK', 7968, '88-4-1', 1000, NULL, 30
 ) ;
 
---列指定方法(これがいい)
+--��w����@(���ꂪ����)
 INSERT INTO EMP (EMPNO, ENAME, HIREDATE, DEPTNO, SAL)
 VALUES (
   7955, 'WILSON', SYSDATE, 30, 1500
 );
 
---副問い合わせを含む行の追加
+--���₢���킹���܂ލs�̒ǉ�
 /*
-INSERT INTO 表名 (列名, ...)
-問い合わせ文
+INSERT INTO �\�� (��, ...)
+�₢���킹��
 */
 INSERT INTO BONUS (ENAME, JOB, SAL, COMM)
 SELECT ENAME, JOB, SAL, COMM FROM EMP
 WHERE JOB = 'MANAGER' OR COMM > SAL * 0.25 ;
 
 
---既存値の更新
+--�����l�̍X�V
 /*
-UPDATE 表名
-SET 列名 = 変更後の値, ...
-WHERE 条件 <-場所の指定 ;
+UPDATE �\��
+SET �� = �ύX��̒l, ...
+WHERE ���� <-�ꏊ�̎w�� ;
 */
 UPDATE EMP
 SET SAL = SAL*1.5
 WHERE JOB = 'SALESMAN' ;
 
 
---BLAKEさんの給与をFORDさんと同じ給与に更新し、確認
+--BLAKE����̋��^��FORD����Ɠ������^�ɍX�V���A�m�F
 UPDATE EMP
 SET SAL = (
   SELECT SAL FROM EMP
@@ -45,7 +45,7 @@ WHERE ENAME = 'BLAKE' ;
 
 
 
---表EMPに新しい列DEPT_NAMEを追加し、各社員が属する部門を挿入。
+--�\EMP�ɐV������DEPT_NAME��ǉ����A�e�Ј��������镔���}���B
 ALTER TABLE EMP ADD DEPT_NAME VARCHAR(15);
 
 UPDATE EMP
@@ -54,11 +54,11 @@ SET DEPT_NAME = (
   WHERE DEPT.DEPTNO = EMP.DEPTNO
 );
 
---行の削除
---NewYorkに勤務する社員の削除
+--�s�̍폜
+--NewYork�ɋΖ�����Ј��̍폜
 /*
-DELETE FROM 表名
-WHERE 列名 = (問い合わせ文) ;
+DELETE FROM �\��
+WHERE �� = (�₢���킹��) ;
 
 */
 DELETE FROM EMP
@@ -87,24 +87,24 @@ WARD                 CHICAGO
 ALLEN                CHICAGO
 
 
---ビューを用いたデータ変更における制限
---EMPとDEPTの結合ビューを作成
+--�r���[��p�����f�[�^�ύX�ɂ����鐧��
+--EMP��DEPT�̌����r���[���쐬
 CREATE VIEW EMPDEPT
 AS SELECT ENAME, JOB, SAL, DNAME, LOC FROM EMP, DEPT
 WHERE EMP.DEPTNO = DEPT.DEPTNO ;
 
-ビューが作成されました・
+�r���[���쐬����܂����E
 
---データ変更制限の確認
+--�f�[�^�ύX�����̊m�F
 INSERT INTO EMPDEPT
 VALUES('DONALD', 'CLERK', 2000, 'TECHNICAL', 'SAN FRANCISCO') ;
 
-行1でエラーが発生しました。:
-ORA-01779: キー保存されていない表にマップする列は変更できません
+�s1�ŃG���[���������܂����B:
+ORA-01779: �L�[�ۑ�����Ă��Ȃ��\�Ƀ}�b�v�����͕ύX�ł��܂���
 
 UPDATE EMPDEPT
 SET JOB = 'ANALYST'
 WHERE ENAME = 'SMITH' ;
 
-行2でエラーが発生しました。:
-ORA-01779: キー保存されていない表にマップする列は変更できません
+�s2�ŃG���[���������܂����B:
+ORA-01779: �L�[�ۑ�����Ă��Ȃ��\�Ƀ}�b�v�����͕ύX�ł��܂���

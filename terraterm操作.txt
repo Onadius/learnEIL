@@ -1,5 +1,5 @@
 terraterm
-/home/ohki/kensyu/c/src/miyawaki
+/home/ohki/kensyu/c/src/af03mk
 
 $ make clobber
 今まで作ってきたmakeファイル関連全削除
@@ -13,7 +13,14 @@ $ mv kadai1.pc samplecording.pc
 $ rm -i compiling_error.txt
 ファイル削除
 
+temp-dirディレクトリを内部のファイルごと削除する
+$ rm -rf temp-dir
+
 #Linux(CentOS)での表示例
 
 $ echo $LANG
 サーバ側の文字コードの確認方法
+
+
+文字列よりファイル検索
+$ find . -type f | xargs grep 'af033k' -n

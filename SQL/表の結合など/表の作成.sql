@@ -1,8 +1,8 @@
 /*
-表(table)の作成
-CREATE TABLE 表名 (
-  列名 データ型(列の幅) [DEFAULT値] [制約]
-  ・・・
+�\(table)�̍쐬
+CREATE TABLE �\�� (
+  �� �f�[�^�^(��̕�) [DEFAULT�l] [����]
+  �E�E�E
 ) ;
 
 
@@ -32,14 +32,14 @@ CREATE TABLE DEPT
 );
 
 
--- 整合性制約
+-- ����������
 /*
-表の各列に対して任意にルールを設定可能。
-・NOT NULL制約
-・UNIQUE制約
-・PRIMARY KEY制約
-・FOREIGN KEY制約
-・CHECK制約
+�\�̊e��ɑ΂��ĔC�ӂɃ��[����ݒ�\�B
+�ENOT NULL����
+�EUNIQUE����
+�EPRIMARY KEY����
+�EFOREIGN KEY����
+�ECHECK����
 */
 
 
@@ -47,35 +47,35 @@ CREATE TABLE DEPT
 
 
 /*
-副問い合わせを含む表の作成
-CREATE TABLE 表明 (列名, ....) AS 問い合わせ文
-↑
-列名を指定しない場合は、問い合わせで選択された列名が割り当てられる
+���₢���킹���܂ޕ\�̍쐬
+CREATE TABLE �\�� (��, ....) AS �₢���킹��
+��
+�񖼂��w�肵�Ȃ��ꍇ�́A�₢���킹�őI�����ꂽ�񖼂����蓖�Ă���
 */
 
--- 部門10に所属する社員で構成される表EMP2を作成
+-- ����10�ɏ�������Ј��ō\�������\EMP2���쐬
 CREATE TABLE EMP2 (
   NAME, SALARY, DEPARTMENT_NO
 )
 AS SELECT ENAME, SAL, DEPTNO FROM EMP
 WHERE DEPTNO = 10 ;
 
--- MANAGER職、もしくは給与の25%よりも歩合のほうが高い社員で構成される表BOUNUSの作成
+-- MANAGER�E�A�������͋��^��25%���������̂ق��������Ј��ō\�������\BOUNUS�̍쐬
 CREATE TABLE BOUNUS
 AS SELECT ENAME, JOB, SAL, COMM FROM EMP
 WHERE JOB = 'MANAGER' OR COMM > 0.25 * SAL ;
 
 
 
---ビューの作成
+--�r���[�̍쐬
 /*
-表の情報を参照したり。変更したりできる。
-データベース内には実在しないが、見かけ上は表と同様で、
-表と同様に扱える。
+�\�̏����Q�Ƃ�����B�ύX������ł���B
+�f�[�^�x�[�X���ɂ͎��݂��Ȃ����A��������͕\�Ɠ��l�ŁA
+�\�Ɠ��l�Ɉ�����B
 
 */
 
--- 部門10の社員で構成されるビューを、表EMPから作成
+-- ����10�̎Ј��ō\�������r���[���A�\EMP����쐬
 CREATE VIEW EMP10
 AS SELECT EMPNO, ENAME, JOB FROM EMP
 WHERE DEPTNO = 10 ;
@@ -86,7 +86,7 @@ EMPNO ENAME                JOB
  7839 KING                 PRESIDENT
  7934 MILLER               CLERK
 
--- 職種がANALYSTで構成されるビューANALYSTを列名を変えて作成
+-- �E�킪ANALYST�ō\�������r���[ANALYST��񖼂�ς��č쐬
 CREATE VIEW ANALYST (ENO, NAME, JOB, DNO) AS
   SELECT EMPNO, ENAME, JOB, DEPTNO FROM EMP
   WHERE JOB = 'ANALYST'
@@ -94,20 +94,20 @@ WITH CHECK OPTION ;
 
 
 
--- 列定義の変更
---表PROJに各種データを追加する
+-- ���`�̕ύX
+--�\PROJ�Ɋe��f�[�^��ǉ�����
 /*
-ALTER TABLE 表名 MODIFY 列名 データ型(列の幅) [NULL値の取り扱い];
+ALTER TABLE �\�� MODIFY �� �f�[�^�^(��̕�) [NULL�l�̎�舵��];
 
 */
 INSERT INTO PROJ VALUES (101, 'ALPHA', 105000);
 
-行1でエラーが発生しました。:
-ORA-01438: この列に許容される指定精度より大きな値です
+�s1�ŃG���[���������܂����B:
+ORA-01438: ���̗�ɋ��e�����w�萸�x���傫�Ȓl�ł�
 
 ALTER TABLE PROJ MODIFY BUDGET NUMBER(8, 2);
 
-表が変更されました
+�\���ύX����܂���
 
 INSERT INTO PROJ VALUES (101, 'ALPHA', 105000);
 
@@ -118,12 +118,12 @@ SQL> SELECT * FROM PROJ ;
        101 ALPHA          105000
 
 
---列の追加
---表DEPTにPROJNO列を追加
+--��̒ǉ�
+--�\DEPT��PROJNO���ǉ�
 /*
-ALTER TABLE 表名 ADD 列名 データ型(列幅) [[NULL値の取り扱い];
-表定義の最後に新しい列を追加する
-既に存在している列の右側に新しい列の追加。列の初期値はNULL値
+ALTER TABLE �\�� ADD �� �f�[�^�^(��) [[NULL�l�̎�舵��];
+�\��`�̍Ō�ɐV�������ǉ�����
+���ɑ��݂��Ă����̉E���ɐV������̒ǉ��B��̏����l��NULL�l
 */
 ALTER TABLE DEPT
 ADD PROJNO NUMBER(3) ;
@@ -136,22 +136,22 @@ SQL> SELECT * FROM DEPT ;
         30 SALES                CHICAGO
         40 OPERATIONS           BOSTON
 
--- 表、ビューの改名
---DEPTをDEPARTMENTに改名
+-- �\�A�r���[�̉���
+--DEPT��DEPARTMENT�ɉ���
 /*
-RENAME 表名/ビュー名 TO 新しい名前
-改名前の表またはビューを参照するビューは無効になる
-改定あるいは削除の必要ある
+RENAME �\��/�r���[�� TO �V�������O
+�����O�̕\�܂��̓r���[���Q�Ƃ���r���[�͖����ɂȂ�
+���肠�邢�͍폜�̕K�v����
 */
 RENAME DEPT TO DEPARTMENT ;
 
 
---表とビューの削除
---データベースからPROJを削除
+--�\�ƃr���[�̍폜
+--�f�[�^�x�[�X����PROJ���폜
 /*
-削除された表に基づくビューは無効になる
-改定及び削除の必要あり
+�폜���ꂽ�\�Ɋ�Â��r���[�͖����ɂȂ�
+����y�э폜�̕K�v����
 */
 DROP TABLE PROJ ;
 
-DROP VIEW EMP10 ;--元の表には影響なし
+DROP VIEW EMP10 ;--���̕\�ɂ͉e���Ȃ�
